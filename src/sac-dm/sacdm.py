@@ -206,20 +206,20 @@ def test(file1, file2):
 
 	util.show([corr, corr2], "Autocorrelation")
 
-	#le = lyapunov_e(data[0:10000], 1000)
-	lr = chaos.lyapunov_e(data, N)
-	lr2 = chaos.lyapunov_e(data2, N)
+	# #le = lyapunov_e(data[0:10000], 1000)
+	# lr = chaos.lyapunov_e(data, N)
+	# lr2 = chaos.lyapunov_e(data2, N)
 
-	#print (le.shape)
-	print (lr.shape)
+	# #print (le.shape)
+	# print (lr.shape)
 
-	util.show([lr, lr2], 'lyapunov coef')
+	# util.show([lr, lr2], 'lyapunov coef')
 
-	l = max(lr)
-	l2 = max(lr2)
+	# l = max(lr)
+	# l2 = max(lr2)
 
-	print ('lyapunov max coef: ', l)
-	print ('lyapunov max coef: ', l2)
+	# print ('lyapunov max coef: ', l)
+	# print ('lyapunov max coef: ', l2)
 
 	plt.show()
 
@@ -231,9 +231,4 @@ filename = sys.argv[1]
 filename2 = sys.argv[2]
 
 test(filename, filename2)
-
-
-
-
-
 
