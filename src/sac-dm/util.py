@@ -47,8 +47,8 @@ def treinamentoMetade(dataset, title, fig, ax):
 	
 	colors = list(mcolors.CSS4_COLORS) 
 
-	media_dataset = media_sac(dataset, 0, round(len(dataset)/2))
-	desv_dataset = desvio_sac(dataset, 0, round(len(dataset)/2))
+	media_dataset = media_sac(dataset, 0, round(len(dataset)))
+	desv_dataset = desvio_sac(dataset, 0, round(len(dataset)))
 
 	aux_desv = np.zeros(len(dataset))
 	aux_desv[round((len(dataset))/2)] = desv_dataset
@@ -77,8 +77,8 @@ def treinamentoCompleto(dataset, title, fig, ax):
 	ax.set_title(title)  
 	colors = list(mcolors.CSS4_COLORS) 
 
-	media_dataset = media_sac(dataset, 0, round(len(dataset)/2))
-	desv_dataset = desvio_sac(dataset, 0, round(len(dataset)/2))
+	media_dataset = media_sac(dataset, 0, round(len(dataset)))
+	desv_dataset = desvio_sac(dataset, 0, round(len(dataset)))
 
 	aux_desv = np.zeros(len(dataset))
 	aux_desv[round((len(dataset))/2)] = desv_dataset
@@ -143,7 +143,7 @@ def showTreinamento(dataset, title, fig, ax):
 
 def showSAC_figUnico(dataset, title):
 
-	# # Criando graficos base
+	# # Criando graficos base ( Treinamento )
 	fig, (ax1_X, ax2_Y, ax3_Z) = plt.subplots(3)
 	treinamentoCompleto(dataset[0][0], "Eixo X", fig, ax1_X)
 	treinamentoCompleto(dataset[0][1], "Eixo Y", fig, ax2_Y)
@@ -155,31 +155,99 @@ def showSAC_figUnico(dataset, title):
 	ax2_Y.set(ylabel = title)
 	ax3_Z.set(ylabel = title)
 
-	# # Plotar os eixos nos gráficos base
-	# #							SAC_DM
-	testagem(dataset[1][1], 'Arquivo F6', fig, ax1_X, 11)
-	testagem(dataset[1][1], 'Arquivo F14', fig, ax1_X, 12)
-	testagem(dataset[1][2], 'Arquivo F22', fig, ax1_X, 13)
+	# # Plotar os eixos nos gráficos base ( Teste )
+	# #						Eixo X
+
+	testagem(dataset[1][0], 'Arquivo F6', fig, ax1_X, 11)
+	testagem(dataset[2][0], 'Arquivo F14', fig, ax1_X, 12)
+	testagem(dataset[3][0], 'Arquivo F22', fig, ax1_X, 13)
 	ax1_X.legend(loc='lower right')
 
-
-	testagem(dataset[2][0], 'Arquivo F6', fig, ax2_Y, 11)
+	# # 					Eixo Y
+	testagem(dataset[1][1], 'Arquivo F6', fig, ax2_Y, 11)
 	testagem(dataset[2][1], 'Arquivo F14', fig, ax2_Y, 12)
-	testagem(dataset[2][2], 'Arquivo F22', fig, ax2_Y, 13)
-	ax2_Y.legend(loc='upper left')
+	testagem(dataset[3][1], 'Arquivo F22', fig, ax2_Y, 13)
+	ax2_Y.legend(loc='lower right')
 
-
-	testagem(dataset[3][0], 'Arquivo F6', fig, ax3_Z, 11)
-	testagem(dataset[3][1], 'Arquivo F14', fig, ax3_Z, 12)
+	# # 					Eixo Z
+	testagem(dataset[1][2], 'Arquivo F6', fig, ax3_Z, 11)
+	testagem(dataset[2][2], 'Arquivo F14', fig, ax3_Z, 12)
 	testagem(dataset[3][2], 'Arquivo F22', fig, ax3_Z, 13)
+	ax3_Z.legend(loc='lower right')
+
+def showSAC_figUnicoComTreino(dataset, title):
+
+	# # Criando graficos base ( Treinamento )
+	fig, (ax1_X, ax2_Y, ax3_Z) = plt.subplots(3)
+
+	auxT = title + ": Eixo X"
+	dataset_treinamento = amostragem_sac(dataset[0][0], 0, (round(len(dataset[0][0])/2) + 1))
+	treinamentoMetade(dataset_treinamento, auxT, fig, ax1_X)
+	dataset_teste = amostragem_sac(dataset[0][0], round(len(dataset[0][0])/2), len(dataset[0][0]) )
+	testagem(dataset_teste, "Segunda metade do Arquivo F0", fig, ax1_X, 16)
+
+	auxT = title + ": Eixo Y"
+	dataset_treinamento = amostragem_sac(dataset[0][1], 0, (round(len(dataset[0][1])/2) + 1))
+	treinamentoMetade(dataset_treinamento, auxT, fig, ax2_Y)
+	dataset_teste = amostragem_sac(dataset[0][1], round(len(dataset[0][1])/2), len(dataset[0][1]) )
+	testagem(dataset_teste, "Segunda metade do Arquivo F0", fig, ax2_Y, 16)
+
+	auxT = title + ": Eixo Z"
+	dataset_treinamento = amostragem_sac(dataset[0][2], 0, (round(len(dataset[0][2])/2) + 1))
+	treinamentoMetade(dataset_treinamento, auxT, fig, ax3_Z)
+	dataset_teste = amostragem_sac(dataset[0][2], round(len(dataset[0][2])/2), len(dataset[0][2]) )
+	testagem(dataset_teste, "Segunda metade do Arquivo F0", fig, ax3_Z, 16)
+
+
+
+	fig.suptitle(title)
+
+	ax1_X.set(ylabel = title)
+	ax2_Y.set(ylabel = title)
+	ax3_Z.set(ylabel = title)
+
+	# # Plotar os eixos nos gráficos base ( Teste )
+	# #							Eixo X
+	dataset_teste = amostragem_sac(dataset[1][0], round(len(dataset[1][0])/2), len(dataset[1][0]) )
+	testagem(dataset_teste, 'Arquivo F6', fig, ax1_X, 11)
+
+	dataset_teste = amostragem_sac(dataset[2][0], round(len(dataset[2][0])/2), len(dataset[2][0]) )
+	testagem(dataset_teste, 'Arquivo F14', fig, ax1_X, 12)
+
+	dataset_teste = amostragem_sac(dataset[3][0], round(len(dataset[3][0])/2), len(dataset[3][0]) )
+	testagem(dataset_teste, 'Arquivo F22', fig, ax1_X, 13)
+	ax1_X.legend(loc='lower right')
+
+	# # 						Eixo Y
+	dataset_teste = amostragem_sac(dataset[1][1], round(len(dataset[1][1])/2), len(dataset[1][1]) )
+	testagem(dataset_teste, 'Arquivo F6', fig, ax2_Y, 11)
+
+	dataset_teste = amostragem_sac(dataset[2][1], round(len(dataset[2][1])/2), len(dataset[2][1]) )
+	testagem(dataset_teste, 'Arquivo F14', fig, ax2_Y, 12)
+
+	dataset_teste = amostragem_sac(dataset[3][1], round(len(dataset[3][1])/2), len(dataset[3][1]) )
+	testagem(dataset_teste, 'Arquivo F22', fig, ax2_Y, 13)
+	ax2_Y.legend(loc='lower right')
+
+	# # 						Eixo Z
+	dataset_teste = amostragem_sac(dataset[1][2], round(len(dataset[1][2])/2), len(dataset[1][2]) )
+	testagem(dataset_teste, 'Arquivo F6', fig, ax3_Z, 11)
+
+	dataset_teste = amostragem_sac(dataset[2][2], round(len(dataset[2][2])/2), len(dataset[2][2]) )
+	testagem(dataset_teste, 'Arquivo F14', fig, ax3_Z, 12)
+
+	dataset_teste = amostragem_sac(dataset[3][2], round(len(dataset[3][2])/2), len(dataset[3][2]) )
+	testagem(dataset_teste, 'Arquivo F22', fig, ax3_Z, 13)
 	ax3_Z.legend(loc='lower right')
 
 def showSAC(dataset, title):
 
+	# # Criando graficos base ( Treinamento )
 	fig, ax = plt.subplots()
 
 	treinamentoCompleto(dataset[0],title, fig, ax)
 
+	# # Plotar os eixos nos gráficos base ( Teste )
 	testagem(dataset[1], 'Arquivo F6', fig, ax, 11)
 	testagem(dataset[2], 'Arquivo F14', fig, ax, 12)
 	testagem(dataset[3], 'Arquivo F22', fig, ax, 13)
