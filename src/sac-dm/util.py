@@ -181,18 +181,21 @@ def showSAC_figUnicoComTreino(dataset, title):
 	fig, (ax1_X, ax2_Y, ax3_Z) = plt.subplots(3)
 
 	auxT = title + ": Eixo X"
+	ax1_X.set_title('Eixo X')
 	dataset_treinamento = amostragem_sac(dataset[0][0], 0, (round(len(dataset[0][0])/2) + 1))
 	treinamentoMetade(dataset_treinamento, auxT, fig, ax1_X)
 	dataset_teste = amostragem_sac(dataset[0][0], round(len(dataset[0][0])/2), len(dataset[0][0]) )
 	testagem(dataset_teste, "Segunda metade do Arquivo F0", fig, ax1_X, 16)
 
 	auxT = title + ": Eixo Y"
+	ax2_Y.set_title('Eixo Y')
 	dataset_treinamento = amostragem_sac(dataset[0][1], 0, (round(len(dataset[0][1])/2) + 1))
 	treinamentoMetade(dataset_treinamento, auxT, fig, ax2_Y)
 	dataset_teste = amostragem_sac(dataset[0][1], round(len(dataset[0][1])/2), len(dataset[0][1]) )
 	testagem(dataset_teste, "Segunda metade do Arquivo F0", fig, ax2_Y, 16)
 
 	auxT = title + ": Eixo Z"
+	ax3_Z.set_title('Eixo Z')
 	dataset_treinamento = amostragem_sac(dataset[0][2], 0, (round(len(dataset[0][2])/2) + 1))
 	treinamentoMetade(dataset_treinamento, auxT, fig, ax3_Z)
 	dataset_teste = amostragem_sac(dataset[0][2], round(len(dataset[0][2])/2), len(dataset[0][2]) )
