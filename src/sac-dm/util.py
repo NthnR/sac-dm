@@ -43,7 +43,11 @@ def show(dataset, title):
 def treinamentoMetade(dataset, title, fig, ax):
 	
 	plt.ylabel(title) 
-	plt.xlabel('Time (ms)')
+	plt.xlabel('Ti
+repo
+Full control of private repositories
+
+me (ms)')
 	
 	colors = list(mcolors.CSS4_COLORS) 
 
@@ -279,3 +283,18 @@ def amostragem_sac(dataset, inicio, fim):
 
 	return dataset[inicio:fim]
 
+def confusionMatrix(dataset):
+
+	mediaF0 = media_sac(dataset[0], 0,len(dataset[0]))
+	desvF0 = desvio_sac(dataset[0], 0,len(dataset[0]))
+
+	mediaF6 = media_sac(dataset[1], 0,len(dataset[1]))
+	desvF6 = desvio_sac(dataset[1], 0,len(dataset[1]))
+
+	mediaF14 = media_sac(dataset[2], 0,len(dataset[2]))
+	desvF14 = desvio_sac(dataset[2], 0,len(dataset[2]))
+
+	mediaF22 = media_sac(dataset[3], 0,len(dataset[3]))
+	desvF22 = desvio_sac(dataset[3], 0,len(dataset[3]))
+
+	
