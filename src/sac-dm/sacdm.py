@@ -19,10 +19,10 @@ import autocorrelation as auto
 import chaos
 import util
 
-def get_data_from_wav(filename):
-	Fs, data = read(filename)
-	data = data[:,0]
-	return data, Fs
+# def get_data_from_wav(filename):
+# 	Fs, data = read(filename)
+# 	data = data[:,0]
+# 	return data, Fs
 
 # Calcula SAC-DM medio total utilizando a funcao find_peaks do Python
 def sac_dm_avg(data):
@@ -338,11 +338,11 @@ def plotSAC_AM_DM():
 
 
 	# # Plotando em uma unica figura, todos os graficos com treino
-	util.showSAC_figUnicoComTreino([[sac_am_F0_x, sac_am_F0_y, sac_am_F0_z], [sac_am_F6_x, sac_am_F6_y, sac_am_F6_z], [sac_am_F14_x, sac_am_F14_y, sac_am_F14_z],
-							[sac_am_F22_x, sac_am_F22_y, sac_am_F22_z]], "SAC-AM")
+	# util.showSAC_figUnicoComTreino([[sac_am_F0_x, sac_am_F0_y, sac_am_F0_z], [sac_am_F6_x, sac_am_F6_y, sac_am_F6_z], [sac_am_F14_x, sac_am_F14_y, sac_am_F14_z],
+	# 						[sac_am_F22_x, sac_am_F22_y, sac_am_F22_z]], "SAC-AM")
 
-	util.showSAC_figUnicoComTreino([[sac_dm_F0_x, sac_dm_F0_y, sac_dm_F0_z], [sac_dm_F6_x, sac_dm_F6_y, sac_dm_F6_z], [sac_dm_F14_x, sac_dm_F14_y, sac_dm_F14_z],
-							[sac_dm_F22_x, sac_dm_F22_y, sac_dm_F22_z]], "SAC-DM")
+	# util.showSAC_figUnicoComTreino([[sac_dm_F0_x, sac_dm_F0_y, sac_dm_F0_z], [sac_dm_F6_x, sac_dm_F6_y, sac_dm_F6_z], [sac_dm_F14_x, sac_dm_F14_y, sac_dm_F14_z],
+	# 						[sac_dm_F22_x, sac_dm_F22_y, sac_dm_F22_z]], "SAC-DM")
 
 
 
@@ -358,6 +358,16 @@ def plotSAC_AM_DM():
 	# util.showSAC([sac_dm_F0_y, sac_dm_F6_y, sac_dm_F14_y, sac_dm_F22_y], "SAC-DM: Eixo Y")
 	# util.showSAC([sac_dm_F0_z, sac_dm_F6_z, sac_dm_F14_z, sac_dm_F22_z], "SAC-DM: Eixo Z")
 
+
+	# # 								Matriz de confusao
+
+	util.confusionMatrix([sac_am_F0_x, sac_am_F6_x, sac_am_F14_x, sac_am_F22_x], ["F0", "F6", "F14", "F22"], "SAC-AM: Eixo X")
+	util.confusionMatrix([sac_am_F0_y, sac_am_F6_y, sac_am_F14_y, sac_am_F22_y], ["F0", "F6", "F14", "F22"], "SAC-AM: Eixo Y")
+	util.confusionMatrix([sac_am_F0_z, sac_am_F6_z, sac_am_F14_z, sac_am_F22_z], ["F0", "F6", "F14", "F22"], "SAC-AM: Eixo Z")
+
+	util.confusionMatrix([sac_dm_F0_x, sac_dm_F6_x, sac_dm_F14_x, sac_dm_F22_x], ["F0", "F6", "F14", "F22"], "SAC-DM: Eixo X")
+	util.confusionMatrix([sac_dm_F0_y, sac_dm_F6_y, sac_dm_F14_y, sac_dm_F22_y], ["F0", "F6", "F14", "F22"], "SAC-DM: Eixo Y")
+	util.confusionMatrix([sac_dm_F0_z, sac_dm_F6_z, sac_dm_F14_z, sac_dm_F22_z], ["F0", "F6", "F14", "F22"], "SAC-DM: Eixo Z")
 	plt.show()
 
 	return 0

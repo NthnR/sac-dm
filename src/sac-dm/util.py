@@ -43,11 +43,7 @@ def show(dataset, title):
 def treinamentoMetade(dataset, title, fig, ax):
 	
 	plt.ylabel(title) 
-	plt.xlabel('Ti
-repo
-Full control of private repositories
-
-me (ms)')
+	plt.xlabel('Time (ms)')
 	
 	colors = list(mcolors.CSS4_COLORS) 
 
@@ -283,18 +279,50 @@ def amostragem_sac(dataset, inicio, fim):
 
 	return dataset[inicio:fim]
 
-def confusionMatrix(dataset):
+def confusionMatrix(dataset, arquivos, title):
 
-	mediaF0 = media_sac(dataset[0], 0,len(dataset[0]))
-	desvF0 = desvio_sac(dataset[0], 0,len(dataset[0]))
+	media = np.zeros((len(dataset)))
+	desvio = np.zeros((len(dataset)))
+	matrix = np.zeros((len(dataset),len(dataset)+1))
 
-	mediaF6 = media_sac(dataset[1], 0,len(dataset[1]))
-	desvF6 = desvio_sac(dataset[1], 0,len(dataset[1]))
+	for i in range(len(dataset)):
+		media[i] = media_sac(dataset[i], 0, len(dataset[i]))
+		desvio[i] = desvio_sac(dataset[i], 0, len(dataset[i]))
 
-	mediaF14 = media_sac(dataset[2], 0,len(dataset[2]))
-	desvF14 = desvio_sac(dataset[2], 0,len(dataset[2]))
+	for i in range(len(dataset)): # Arquivos com os mesmos eixos
+		for j in range(len(dataset[i])): # array com n pontos
+			
+			if (dataset[i][j] >= media[0] - desvio[0] and dataset[i][j] <= media[0] + desvio[0]):
+				matrix[i][0] += 1
+				continue
 
-	mediaF22 = media_sac(dataset[3], 0,len(dataset[3]))
-	desvF22 = desvio_sac(dataset[3], 0,len(dataset[3]))
+			elif(dataset[i][j] >= media[1] - desvio[1] and dataset[i][j] <= media[1] + desvio[1]):
+				matrix[i][1] += 1
+				continue
+
+			elif(dataset[i][j] >= media[2] - desvio[2] and dataset[i][j] <= media[2] + desvio[2]):
+				matrix[i][2] += 1
+				continue
+
+			elif(dataset[i][j] >= media[3] - desvio[3] and dataset[i][j] <= media[3] + desvio[3]):
+				matrix[i][3] += 1
+				continue
+			
+			else:
+				matrix[i][4] += 1
+
+
+	print(f"\n\t\t{title}\n")
+
+	print(f"{'Arquivo':<10}", end="")
+	for i in range(len(arquivos)):
+		print(f"{arquivos[i]:<10}", end="")
+
+	print(f"{'Inconclusivo':<10}")
+
+	for i in range(len(matrix)):
+		print(f"{arquivos[i]:<10}{matrix[i][0]:<10}{matrix[i][1]:<10}{matrix[i][2]:<10}{matrix[i][3]:<10}{matrix[i][4]:<10}")
+	
+
 
 	
