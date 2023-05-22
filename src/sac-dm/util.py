@@ -324,5 +324,31 @@ def confusionMatrix(dataset, arquivos, title):
 		print(f"{arquivos[i]:<10}{matrix[i][0]:<10}{matrix[i][1]:<10}{matrix[i][2]:<10}{matrix[i][3]:<10}{matrix[i][4]:<10}")
 	
 
+def plotConfusionMatrix(dataset, arquivos, title):
 
-	
+	media = np.zeros((len(dataset)))
+	desvio = np.zeros((len(dataset)))
+
+	fig, ax = plt.subplots()
+	colors = list(mcolors.CSS4_COLORS) 
+
+	for i in range(len(dataset)):
+		media[i] = media_sac(dataset[i], 0, len(dataset[i]))
+		desvio[i] = desvio_sac(dataset[i], 0, len(dataset[i]))
+
+	x = np.arange(len(dataset[0]))
+	y = np.zeros(len(dataset[0]))
+
+	# # Plotando media
+	# for i in range(len(dataset)):
+	# 	y = np.full_like(y, media[i])
+	# 	ax.plot(x,y,color=colors[10], label = ("Média do Arquivo " + arquivos[i]))
+
+
+	# # Plotando area preenchida
+	ax.fill_between(x, media[0] - desvio[0], media[0] + desvio[0],color = 'purple', alpha = 0.5, label = "Desvio Padrão do Arquivo F0")
+	ax.fill_between(x, media[1] - desvio[1], media[1] + desvio[1],color = 'red', alpha = 0.5, label = "Desvio Padrão do Arquivo F6")
+	ax.fill_between(x, media[2] - desvio[2], media[2] + desvio[2],color = 'green', alpha = 0.5, label = "Desvio Padrão do Arquivo F14")
+	ax.fill_between(x, media[3] - desvio[3], media[3] + desvio[3],color = 'yellow', alpha = 0.5, label = "Desvio Padrão do Arquivo F22")
+	ax.legend(loc='lower right')
+	# plt.show()
