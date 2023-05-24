@@ -322,7 +322,83 @@ def confusionMatrix(dataset, arquivos, title):
 
 	for i in range(len(matrix)):
 		print(f"{arquivos[i]:<10}{matrix[i][0]:<10}{matrix[i][1]:<10}{matrix[i][2]:<10}{matrix[i][3]:<10}{matrix[i][4]:<10}")
-	
+
+def confusionMatrixInTxt(dataset, arquivos, title):
+
+	file1 = open('confusionMatrix.txt', 'a+')
+	media = np.zeros((len(dataset)))
+	desvio = np.zeros((len(dataset)))
+	matrix = np.zeros((len(dataset),len(dataset)+1))
+	pontos_inconclusivos = np.zeros((len(dataset),len(dataset[0])))
+
+	file1.write((title + "\n\n"))
+	for i in range(len(dataset)):
+		media[i] = media_sac(dataset[i], 0, len(dataset[i]))
+		desvio[i] = desvio_sac(dataset[i], 0, len(dataset[i]))
+		file1.write((arquivos[i] + ":" + " Média - " + str(round(media[i], 4)) + "\n"))
+		file1.write((arquivos[i] + ":" + " Desvio padrao - " + str(round(desvio[i], 4)) + "\n\n"))
+
+	for i in range(len(dataset)): # Arquivos com os mesmos eixos
+		for j in range(len(dataset[i])): # array com n pontos
+			
+			if (dataset[i][j] >= media[0] - desvio[0] and dataset[i][j] <= media[0] + desvio[0]):
+				matrix[i][0] += 1
+				continue
+
+			elif(dataset[i][j] >= media[1] - desvio[1] and dataset[i][j] <= media[1] + desvio[1]):
+				matrix[i][1] += 1
+				continue
+
+			elif(dataset[i][j] >= media[2] - desvio[2] and dataset[i][j] <= media[2] + desvio[2]):
+				matrix[i][2] += 1
+				continue
+
+			elif(dataset[i][j] >= media[3] - desvio[3] and dataset[i][j] <= media[3] + desvio[3]):
+				matrix[i][3] += 1
+				continue
+			
+			else:
+				pontos_inconclusivos[i][j] = dataset[i][j] 
+				matrix[i][4] += 1
+
+
+
+	file1.write("Matriz de confusao\n\n")
+	file1.write((f"{'Arquivo':<10}"))
+	for i in range(len(arquivos)):
+		file1.write(f"{arquivos[i]:<10}")
+	file1.write(f"{'Inconclusivo':<10}\n")
+
+	for i in range(len(matrix)):
+		file1.write(f"{arquivos[i]:<10}{matrix[i][0]:<10}{matrix[i][1]:<10}{matrix[i][2]:<10}{matrix[i][3]:<10}{matrix[i][4]:<10}\n\n")
+
+	file1.write("Pontos inconclusivos: \n\n")
+	for i in range(len(pontos_inconclusivos)):
+		aux = 0
+		for j in range(len(pontos_inconclusivos[i])):
+
+			if(pontos_inconclusivos[i][j] != 0 and i < 2):
+				file1.write(f"{arquivos[i]} {j}: {round(pontos_inconclusivos[i][j], 3)}  ")
+				aux = aux + 1
+			if(pontos_inconclusivos[i][j] != 0 and i >= 2):
+				file1.write(f"{arquivos[i]} {j}: {round(pontos_inconclusivos[i][j], 3)}  ")
+				aux = aux + 1
+			if(aux % 8 == 0.0 and aux != 0):
+				file1.write("\n")
+				aux = 0
+			
+
+		file1.write("\n\n")
+
+	file1.write("\n\n\n")	
+
+	file1.close()
+
+def flushTxt():
+	file1 = open('confusionMatrix.txt', 'r+')
+	file1.truncate(0)
+	file1.close()
+
 
 def plotConfusionMatrix(dataset, arquivos, title):
 
