@@ -330,6 +330,7 @@ def confusionMatrixInTxt(dataset, arquivos, title):
 	desvio = np.zeros((len(dataset)))
 	matrix = np.zeros((len(dataset),len(dataset)+1))
 	pontos_inconclusivos = np.zeros((len(dataset),len(dataset[0])))
+	pontos_inconclusivos_ordenados = np.zeros((len(dataset),len(dataset[0])))
 
 	file1.write((title + "\n\n"))
 	for i in range(len(dataset)):
@@ -361,7 +362,8 @@ def confusionMatrixInTxt(dataset, arquivos, title):
 				pontos_inconclusivos[i][j] = dataset[i][j] 
 				matrix[i][4] += 1
 
-
+	for i in range(len(dataset)):
+		pontos_inconclusivos_ordenados[i] = np.sort(pontos_inconclusivos[i])
 
 	file1.write("Matriz de confusao\n\n")
 	file1.write((f"{'Arquivo':<10}"))
@@ -373,29 +375,43 @@ def confusionMatrixInTxt(dataset, arquivos, title):
 		file1.write(f"{arquivos[i]:<10}{matrix[i][0]:<10}{matrix[i][1]:<10}{matrix[i][2]:<10}{matrix[i][3]:<10}{matrix[i][4]:<10}\n\n")
 
 	file1.write("Pontos inconclusivos: \n\n")
-	for i in range(len(pontos_inconclusivos)):
+	for i in range(len(pontos_inconclusivos_ordenados)):
 		aux = 0
-		for j in range(len(pontos_inconclusivos[i])):
+		for j in range(len(pontos_inconclusivos_ordenados[i])):
 
-			if(pontos_inconclusivos[i][j] != 0 and i < 2):
-				file1.write(f"{arquivos[i]} {j}: {round(pontos_inconclusivos[i][j], 3)}  ")
+			if(pontos_inconclusivos_ordenados[i][j] != 0):
+
+				file1.write(f"{arquivos[i]}-{j}: {round(pontos_inconclusivos_ordenados[i][j], 3)}  ")
 				aux = aux + 1
-			if(pontos_inconclusivos[i][j] != 0 and i >= 2):
-				file1.write(f"{arquivos[i]} {j}: {round(pontos_inconclusivos[i][j], 3)}  ")
-				aux = aux + 1
+
 			if(aux % 8 == 0.0 and aux != 0):
 				file1.write("\n")
 				aux = 0
-			
+				
+		file1.write("\n\n")
 
+	file1.write("Pontos inconclusivos ordenados: \n\n")
+	for i in range(len(pontos_inconclusivos_ordenados)):
+		aux = 0
+		for j in range(len(pontos_inconclusivos_ordenados[i])):
+
+			if(pontos_inconclusivos_ordenados[i][j] != 0):
+				indice = np.where(pontos_inconclusivos[i] == pontos_inconclusivos_ordenados[i][j])
+				file1.write(f"{arquivos[i]}-{indice[0]}: {round(pontos_inconclusivos_ordenados[i][j], 3)}  ")
+				aux = aux + 1
+
+			if(aux % 8 == 0.0 and aux != 0):
+				file1.write("\n")
+				aux = 0
+	
 		file1.write("\n\n")
 
 	file1.write("\n\n\n")	
 
 	file1.close()
 
-def flushTxt():
-	file1 = open('confusionMatrix.txt', 'r+')
+def cleanTxt():
+	file1 = open('confusionMatrix.txt', 'w+')
 	file1.truncate(0)
 	file1.close()
 
