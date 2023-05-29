@@ -396,11 +396,20 @@ def confusionMatrixInTxt(dataset, arquivos, title):
 		for j in range(len(pontos_inconclusivos_ordenados[i])):
 
 			if(pontos_inconclusivos_ordenados[i][j] != 0):
-				indice = np.where(pontos_inconclusivos[i] == pontos_inconclusivos_ordenados[i][j])
-				file1.write(f"{arquivos[i]}-{indice[0]}: {round(pontos_inconclusivos_ordenados[i][j], 3)}  ")
-				aux = aux + 1
 
-			if(aux % 8 == 0.0 and aux != 0):
+				if(pontos_inconclusivos_ordenados[i][j] < (media[i] - desvio[i])):
+					indice = np.where(pontos_inconclusivos[i] == pontos_inconclusivos_ordenados[i][j])
+					percentagem = get_change(pontos_inconclusivos_ordenados[i][j], (media[i] - desvio[i]))
+					file1.write(f"{arquivos[i]}-{indice[0]}:[Menor: {round(percentagem,2)}%] {round(pontos_inconclusivos_ordenados[i][j], 3)}  ")
+					aux = aux + 1
+
+				elif(pontos_inconclusivos_ordenados[i][j] > (media[i] + desvio[i])):
+					indice = np.where(pontos_inconclusivos[i] == pontos_inconclusivos_ordenados[i][j])
+					percentagem = get_change(pontos_inconclusivos_ordenados[i][j], (media[i] + desvio[i]))
+					file1.write(f"{arquivos[i]}-{indice[0]}:[Maior: {round(percentagem,2)}%] {round(pontos_inconclusivos_ordenados[i][j], 3)}  ")
+					aux = aux + 1
+
+			if(aux % 5 == 0.0 and aux != 0):
 				file1.write("\n")
 				aux = 0
 	
@@ -444,3 +453,11 @@ def plotConfusionMatrix(dataset, arquivos, title):
 	ax.fill_between(x, media[3] - desvio[3], media[3] + desvio[3],color = 'yellow', alpha = 0.5, label = "Desvio Padrão do Arquivo F22")
 	ax.legend(loc='lower right')
 	# plt.show()
+
+def get_change(current, previous):
+    if current == previous:
+        return 0
+    try:
+        return (abs(current - previous) / previous) * 100.0
+    except ZeroDivisionError:
+        return float('inf')
