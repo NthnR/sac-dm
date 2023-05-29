@@ -377,17 +377,17 @@ def confusionMatrixInTxt(dataset, arquivos, title):
 	file1.write("Pontos inconclusivos: \n\n")
 	for i in range(len(pontos_inconclusivos_ordenados)):
 		aux = 0
-		for j in range(len(pontos_inconclusivos_ordenados[i])):
+		for j in range(len(pontos_inconclusivos[i])):
 
-			if(pontos_inconclusivos_ordenados[i][j] != 0):
+			if(pontos_inconclusivos[i][j] != 0):
 
-				file1.write(f"{arquivos[i]}-{j}: {round(pontos_inconclusivos_ordenados[i][j], 3)}  ")
+				file1.write(f"{arquivos[i]}-{j}: {round(pontos_inconclusivos[i][j], 3)}  ")
 				aux = aux + 1
 
 			if(aux % 8 == 0.0 and aux != 0):
 				file1.write("\n")
 				aux = 0
-				
+
 		file1.write("\n\n")
 
 	file1.write("Pontos inconclusivos ordenados: \n\n")
