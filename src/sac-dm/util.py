@@ -337,7 +337,8 @@ def confusionMatrixInTxt(dataset, arquivos, title):
 		media[i] = media_sac(dataset[i], 0, len(dataset[i]))
 		desvio[i] = desvio_sac(dataset[i], 0, len(dataset[i]))
 		file1.write((arquivos[i] + ":" + " Média - " + str(round(media[i], 4)) + "\n"))
-		file1.write((arquivos[i] + ":" + " Desvio padrao - " + str(round(desvio[i], 4)) + "\n\n"))
+		file1.write((arquivos[i] + ":" + " Desvio padrao - " + str(round(desvio[i], 4)) + "\n"))
+		file1.write((arquivos[i] + ":" + " Limite inferior - " + str(round(media[i] - desvio[i], 4)) + " | " + "Limite superior - " + str(round(media[i] + desvio[i], 4)) +"\n\n"))
 
 	for i in range(len(dataset)): # Arquivos com os mesmos eixos
 		for j in range(len(dataset[i])): # array com n pontos
