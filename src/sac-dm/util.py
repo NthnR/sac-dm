@@ -465,7 +465,7 @@ def confusionMatrixInTxt(dataset, arquivos, title):
 			if(pontos_inconclusivos_porcent_Maior[i][j] != 0 and pontos_inconclusivos_porcent_Maior[i][j] > 100):
 				tabela_porcentagem_maior[i][10] += 1
 
-	file1.write("Tabela das porcentagens menores que o limite inferior: \n\n")
+	file1.write("\nTabela das porcentagens menores que o limite inferior: \n\n")
 	file1.write((f"{'':<10}"))
 	file1.write((f"{'0-10%':<10}") + (f"{'10-20%':<10}") + (f"{'20-30%':<10}") + (f"{'30-40%':<10}") + (f"{'40-50%':<10}") + (f"{'50-60%':<10}") + (f"{'60-70%':<10}") + (f"{'70-80%':<10}") + (f"{'80-90%':<10}") + (f"{'90-100%':<10}") + (f"{'>100%':<10}\n"))
 	for i in range(len(tabela_porcentagem_menor)):
@@ -473,7 +473,7 @@ def confusionMatrixInTxt(dataset, arquivos, title):
 		for j in range(len(tabela_porcentagem_menor[i])):
 			file1.write(f"{tabela_porcentagem_menor[i][j]:<10}")
 		file1.write("\n")
-	file1.write("\n\n\n")	
+	file1.write("\n\n")	
 	
 	file1.write("Tabela das porcentagem maiores que o limite superior: \n\n")
 	file1.write((f"{'':<10}"))
