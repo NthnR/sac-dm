@@ -380,23 +380,8 @@ def confusionMatrixInTxt(dataset, arquivos, title):
 	for i in range(len(matrix)):
 		file1.write(f"{arquivos[i]:<10}{matrix[i][0]:<10}{matrix[i][1]:<10}{matrix[i][2]:<10}{matrix[i][3]:<10}{matrix[i][4]:<10}\n\n")
 
-	file1.write("Pontos inconclusivos: \n\n")
-	for i in range(len(pontos_inconclusivos_ordenados)):
-		aux = 0
-		for j in range(len(pontos_inconclusivos[i])):
-
-			if(pontos_inconclusivos[i][j] != 0):
-
-				file1.write(f"{arquivos[i]}-{j}: {round(pontos_inconclusivos[i][j], 3)}  ")
-				aux = aux + 1
-
-			if(aux % 8 == 0.0 and aux != 0):
-				file1.write("\n")
-				aux = 0
-
-		file1.write("\n\n")
-
-	file1.write("Pontos inconclusivos ordenados: \n\n")
+	pontos_str = ""
+	pontos_str += ("Pontos inconclusivos ordenados com porcentagens: \n\n")
 	for i in range(len(pontos_inconclusivos_ordenados)):
 		aux = 0
 		aux_porcent = 0
@@ -408,7 +393,7 @@ def confusionMatrixInTxt(dataset, arquivos, title):
 					indice = np.where(pontos_inconclusivos[i] == pontos_inconclusivos_ordenados[i][j])
 					percentagem = get_change(pontos_inconclusivos_ordenados[i][j], (media[i] - desvio[i]))
 					pontos_inconclusivos_porcent_Menor[i][aux_porcent] = percentagem
-					file1.write(f"{arquivos[i]}-{indice[0]}:[Menor: {round(percentagem,2)}%] {round(pontos_inconclusivos_ordenados[i][j], 3)}  ")
+					pontos_str += (f"{arquivos[i]}-{indice[0]}:[Menor: {round(percentagem,2)}%] {round(pontos_inconclusivos_ordenados[i][j], 3)}  ")
 					aux_porcent = aux_porcent + 1
 					aux = aux + 1
 
@@ -416,20 +401,21 @@ def confusionMatrixInTxt(dataset, arquivos, title):
 					indice = np.where(pontos_inconclusivos[i] == pontos_inconclusivos_ordenados[i][j])
 					percentagem = get_change(pontos_inconclusivos_ordenados[i][j], (media[i] + desvio[i]))
 					pontos_inconclusivos_porcent_Maior[i][aux_porcent] = percentagem
-					file1.write(f"{arquivos[i]}-{indice[0]}:[Maior: {round(percentagem,2)}%] {round(pontos_inconclusivos_ordenados[i][j], 3)}  ")
+					pontos_str += (f"{arquivos[i]}-{indice[0]}:[Maior: {round(percentagem,2)}%] {round(pontos_inconclusivos_ordenados[i][j], 3)}  ")
 					aux_porcent = aux_porcent + 1
 					aux = aux + 1
 
 			if(aux % 5 == 0.0 and aux != 0):
-				file1.write("\n")
+				pontos_str += ("\n")
 				aux = 0
 	
-		file1.write("\n\n")
-
+		pontos_str += ("\n\n")
+	
+	
 	tabela_porcentagem_menor = np.zeros((len(dataset),11))
 	tabela_porcentagem_maior = np.zeros((len(dataset),11))
 
-	file1.write("Pontos inconclusivos ordenados porcentagem: \n\n")
+
 	for i in range(len(pontos_inconclusivos_porcent_Menor)):
 		for j in range(len(pontos_inconclusivos_porcent_Menor[i])):
 
@@ -497,6 +483,24 @@ def confusionMatrixInTxt(dataset, arquivos, title):
 			file1.write(f"{tabela_porcentagem_maior[i][j]:<10}")
 		file1.write("\n")
 	
+	file1.write("\n\nPontos inconclusivos: \n\n")
+	for i in range(len(pontos_inconclusivos_ordenados)):
+		aux = 0
+		for j in range(len(pontos_inconclusivos[i])):
+
+			if(pontos_inconclusivos[i][j] != 0):
+
+				file1.write(f"{arquivos[i]}-{j}: {round(pontos_inconclusivos[i][j], 3)}  ")
+				aux = aux + 1
+
+			if(aux % 8 == 0.0 and aux != 0):
+				file1.write("\n")
+				aux = 0
+
+		file1.write("\n\n")
+
+	file1.write(pontos_str)
+
 	file1.write("\n\n\n")	
 
 	file1.close()
