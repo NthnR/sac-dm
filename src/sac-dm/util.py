@@ -362,8 +362,14 @@ def confusionMatrixInTxt(dataset, arquivos, title):
 				pontos_inconclusivos[i][j] = dataset[i][j] 
 				matrix[i][4] += 1
 
+	qtd_max_pontos = 0
 	for i in range(len(dataset)):
 		pontos_inconclusivos_ordenados[i] = np.sort(pontos_inconclusivos[i])
+		if(matrix[i][4] > qtd_max_pontos):
+			qtd_max_pontos = int(matrix[i][4])
+
+	pontos_inconclusivos_porcent_Menor = np.zeros((len(dataset),qtd_max_pontos))
+	pontos_inconclusivos_porcent_Maior = np.zeros((len(dataset),qtd_max_pontos))
 
 	file1.write("Matriz de confusao\n\n")
 	file1.write((f"{'Arquivo':<10}"))
@@ -393,6 +399,7 @@ def confusionMatrixInTxt(dataset, arquivos, title):
 	file1.write("Pontos inconclusivos ordenados: \n\n")
 	for i in range(len(pontos_inconclusivos_ordenados)):
 		aux = 0
+		aux_porcent = 0
 		for j in range(len(pontos_inconclusivos_ordenados[i])):
 
 			if(pontos_inconclusivos_ordenados[i][j] != 0):
@@ -400,13 +407,17 @@ def confusionMatrixInTxt(dataset, arquivos, title):
 				if(pontos_inconclusivos_ordenados[i][j] < (media[i] - desvio[i])):
 					indice = np.where(pontos_inconclusivos[i] == pontos_inconclusivos_ordenados[i][j])
 					percentagem = get_change(pontos_inconclusivos_ordenados[i][j], (media[i] - desvio[i]))
+					pontos_inconclusivos_porcent_Menor[i][aux_porcent] = percentagem
 					file1.write(f"{arquivos[i]}-{indice[0]}:[Menor: {round(percentagem,2)}%] {round(pontos_inconclusivos_ordenados[i][j], 3)}  ")
+					aux_porcent = aux_porcent + 1
 					aux = aux + 1
 
 				elif(pontos_inconclusivos_ordenados[i][j] > (media[i] + desvio[i])):
 					indice = np.where(pontos_inconclusivos[i] == pontos_inconclusivos_ordenados[i][j])
 					percentagem = get_change(pontos_inconclusivos_ordenados[i][j], (media[i] + desvio[i]))
+					pontos_inconclusivos_porcent_Maior[i][aux_porcent] = percentagem
 					file1.write(f"{arquivos[i]}-{indice[0]}:[Maior: {round(percentagem,2)}%] {round(pontos_inconclusivos_ordenados[i][j], 3)}  ")
+					aux_porcent = aux_porcent + 1
 					aux = aux + 1
 
 			if(aux % 5 == 0.0 and aux != 0):
@@ -415,6 +426,77 @@ def confusionMatrixInTxt(dataset, arquivos, title):
 	
 		file1.write("\n\n")
 
+	tabela_porcentagem_menor = np.zeros((len(dataset),11))
+	tabela_porcentagem_maior = np.zeros((len(dataset),11))
+
+	file1.write("Pontos inconclusivos ordenados porcentagem: \n\n")
+	for i in range(len(pontos_inconclusivos_porcent_Menor)):
+		for j in range(len(pontos_inconclusivos_porcent_Menor[i])):
+
+			if(pontos_inconclusivos_porcent_Menor[i][j] != 0 and pontos_inconclusivos_porcent_Menor[i][j] > 0 and pontos_inconclusivos_porcent_Menor[i][j] <= 10):
+				tabela_porcentagem_menor[i][0] += 1
+			if(pontos_inconclusivos_porcent_Menor[i][j] != 0 and pontos_inconclusivos_porcent_Menor[i][j] > 10 and pontos_inconclusivos_porcent_Menor[i][j] <= 20):
+				tabela_porcentagem_menor[i][1] += 1
+			if(pontos_inconclusivos_porcent_Menor[i][j] != 0 and pontos_inconclusivos_porcent_Menor[i][j] > 20 and pontos_inconclusivos_porcent_Menor[i][j] <= 30):
+				tabela_porcentagem_menor[i][2] += 1
+			if(pontos_inconclusivos_porcent_Menor[i][j] != 0 and pontos_inconclusivos_porcent_Menor[i][j] > 30 and pontos_inconclusivos_porcent_Menor[i][j] <= 40):
+				tabela_porcentagem_menor[i][3] += 1
+			if(pontos_inconclusivos_porcent_Menor[i][j] != 0 and pontos_inconclusivos_porcent_Menor[i][j] > 40 and pontos_inconclusivos_porcent_Menor[i][j] <= 50):
+				tabela_porcentagem_menor[i][4] += 1
+			if(pontos_inconclusivos_porcent_Menor[i][j] != 0 and pontos_inconclusivos_porcent_Menor[i][j] > 50 and pontos_inconclusivos_porcent_Menor[i][j] <= 60):
+				tabela_porcentagem_menor[i][5] += 1
+			if(pontos_inconclusivos_porcent_Menor[i][j] != 0 and pontos_inconclusivos_porcent_Menor[i][j] > 60 and pontos_inconclusivos_porcent_Menor[i][j] <= 70):
+				tabela_porcentagem_menor[i][6] += 1
+			if(pontos_inconclusivos_porcent_Menor[i][j] != 0 and pontos_inconclusivos_porcent_Menor[i][j] > 70 and pontos_inconclusivos_porcent_Menor[i][j] <= 80):
+				tabela_porcentagem_menor[i][7] += 1
+			if(pontos_inconclusivos_porcent_Menor[i][j] != 0 and pontos_inconclusivos_porcent_Menor[i][j] > 80 and pontos_inconclusivos_porcent_Menor[i][j] <= 90):
+				tabela_porcentagem_menor[i][8] += 1
+			if(pontos_inconclusivos_porcent_Menor[i][j] != 0 and pontos_inconclusivos_porcent_Menor[i][j] > 90 and pontos_inconclusivos_porcent_Menor[i][j] <= 100):
+				tabela_porcentagem_menor[i][9] += 1
+			if(pontos_inconclusivos_porcent_Menor[i][j] != 0 and pontos_inconclusivos_porcent_Menor[i][j] > 100):
+				tabela_porcentagem_menor[i][10] += 1
+			if(pontos_inconclusivos_porcent_Maior[i][j] != 0 and pontos_inconclusivos_porcent_Maior[i][j] > 0 and pontos_inconclusivos_porcent_Maior[i][j] <= 10):
+				tabela_porcentagem_maior[i][0] += 1
+			if(pontos_inconclusivos_porcent_Maior[i][j] != 0 and pontos_inconclusivos_porcent_Maior[i][j] > 10 and pontos_inconclusivos_porcent_Maior[i][j] <= 20):
+				tabela_porcentagem_maior[i][1] += 1
+			if(pontos_inconclusivos_porcent_Maior[i][j] != 0 and pontos_inconclusivos_porcent_Maior[i][j] > 20 and pontos_inconclusivos_porcent_Maior[i][j] <= 30):
+				tabela_porcentagem_maior[i][2] += 1
+			if(pontos_inconclusivos_porcent_Maior[i][j] != 0 and pontos_inconclusivos_porcent_Maior[i][j] > 30 and pontos_inconclusivos_porcent_Maior[i][j] <= 40):
+				tabela_porcentagem_maior[i][3] += 1
+			if(pontos_inconclusivos_porcent_Maior[i][j] != 0 and pontos_inconclusivos_porcent_Maior[i][j] > 40 and pontos_inconclusivos_porcent_Maior[i][j] <= 50):
+				tabela_porcentagem_maior[i][4] += 1
+			if(pontos_inconclusivos_porcent_Maior[i][j] != 0 and pontos_inconclusivos_porcent_Maior[i][j] > 50 and pontos_inconclusivos_porcent_Maior[i][j] <= 60):
+				tabela_porcentagem_maior[i][5] += 1
+			if(pontos_inconclusivos_porcent_Maior[i][j] != 0 and pontos_inconclusivos_porcent_Maior[i][j] > 60 and pontos_inconclusivos_porcent_Maior[i][j] <= 70):
+				tabela_porcentagem_maior[i][6] += 1
+			if(pontos_inconclusivos_porcent_Maior[i][j] != 0 and pontos_inconclusivos_porcent_Maior[i][j] > 70 and pontos_inconclusivos_porcent_Maior[i][j] <= 80):
+				tabela_porcentagem_maior[i][7] += 1
+			if(pontos_inconclusivos_porcent_Maior[i][j] != 0 and pontos_inconclusivos_porcent_Maior[i][j] > 80 and pontos_inconclusivos_porcent_Maior[i][j] <= 90):
+				tabela_porcentagem_maior[i][8] += 1
+			if(pontos_inconclusivos_porcent_Maior[i][j] != 0 and pontos_inconclusivos_porcent_Maior[i][j] > 90 and pontos_inconclusivos_porcent_Maior[i][j] <= 100):
+				tabela_porcentagem_maior[i][9] += 1
+			if(pontos_inconclusivos_porcent_Maior[i][j] != 0 and pontos_inconclusivos_porcent_Maior[i][j] > 100):
+				tabela_porcentagem_maior[i][10] += 1
+
+	file1.write("Tabela das porcentagens menores que o limite inferior: \n\n")
+	file1.write((f"{'':<10}"))
+	file1.write((f"{'0-10%':<10}") + (f"{'10-20%':<10}") + (f"{'20-30%':<10}") + (f"{'30-40%':<10}") + (f"{'40-50%':<10}") + (f"{'50-60%':<10}") + (f"{'60-70%':<10}") + (f"{'70-80%':<10}") + (f"{'80-90%':<10}") + (f"{'90-100%':<10}") + (f"{'>100%':<10}\n"))
+	for i in range(len(tabela_porcentagem_menor)):
+		file1.write((f"{arquivos[i]:<10}"))
+		for j in range(len(tabela_porcentagem_menor[i])):
+			file1.write(f"{tabela_porcentagem_menor[i][j]:<10}")
+		file1.write("\n")
+	file1.write("\n\n\n")	
+	
+	file1.write("Tabela das porcentagem maiores que o limite superior: \n\n")
+	file1.write((f"{'':<10}"))
+	file1.write((f"{'0-10%':<10}") + (f"{'10-20%':<10}") + (f"{'20-30%':<10}") + (f"{'30-40%':<10}") + (f"{'40-50%':<10}") + (f"{'50-60%':<10}") + (f"{'60-70%':<10}") + (f"{'70-80%':<10}") + (f"{'80-90%':<10}") + (f"{'90-100%':<10}") + (f"{'>100%':<10}\n"))
+	for i in range(len(tabela_porcentagem_maior)):
+		file1.write((f"{arquivos[i]:<10}"))
+		for j in range(len(tabela_porcentagem_maior[i])):
+			file1.write(f"{tabela_porcentagem_maior[i][j]:<10}")
+		file1.write("\n")
+	
 	file1.write("\n\n\n")	
 
 	file1.close()
@@ -458,6 +540,6 @@ def get_change(current, previous):
     if current == previous:
         return 0
     try:
-        return (abs(current - previous) / previous) * 100.0
+        return (abs(current - previous)  / previous) * 100.0
     except ZeroDivisionError:
         return float('inf')
