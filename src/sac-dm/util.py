@@ -510,36 +510,10 @@ def cleanTxt():
 	file1 = open('confusionMatrix.txt', 'w+')
 	file1.truncate(0)
 	file1.close()
+	file1 = open('confusionMatrixSlidingWindow.txt', 'a+')
+	file1.truncate(0)
+	file1.close()
 
-
-def plotConfusionMatrix(dataset, arquivos, title):
-
-	media = np.zeros((len(dataset)))
-	desvio = np.zeros((len(dataset)))
-
-	fig, ax = plt.subplots()
-	colors = list(mcolors.CSS4_COLORS) 
-
-	for i in range(len(dataset)):
-		media[i] = media_sac(dataset[i], 0, len(dataset[i]))
-		desvio[i] = desvio_sac(dataset[i], 0, len(dataset[i]))
-
-	x = np.arange(len(dataset[0]))
-	y = np.zeros(len(dataset[0]))
-
-	# # Plotando media
-	# for i in range(len(dataset)):
-	# 	y = np.full_like(y, media[i])
-	# 	ax.plot(x,y,color=colors[10], label = ("Média do Arquivo " + arquivos[i]))
-
-
-	# # Plotando area preenchida
-	ax.fill_between(x, media[0] - desvio[0], media[0] + desvio[0],color = 'purple', alpha = 0.5, label = "Desvio Padrão do Arquivo F0")
-	ax.fill_between(x, media[1] - desvio[1], media[1] + desvio[1],color = 'red', alpha = 0.5, label = "Desvio Padrão do Arquivo F6")
-	ax.fill_between(x, media[2] - desvio[2], media[2] + desvio[2],color = 'green', alpha = 0.5, label = "Desvio Padrão do Arquivo F14")
-	ax.fill_between(x, media[3] - desvio[3], media[3] + desvio[3],color = 'yellow', alpha = 0.5, label = "Desvio Padrão do Arquivo F22")
-	ax.legend(loc='lower right')
-	# plt.show()
 
 def get_change(current, previous):
     if current == previous:
@@ -548,3 +522,81 @@ def get_change(current, previous):
         return (abs(current - previous)  / previous) * 100.0
     except ZeroDivisionError:
         return float('inf')
+
+def slidingWindowInTxt(dataset, arquivos, title, window_size, N):
+
+	file1 = open('confusionMatrixSlidingWindow.txt', 'a+')
+	media = np.zeros((len(dataset)))
+	desvio = np.zeros((len(dataset)))
+	matrix = np.zeros((len(dataset),len(dataset)+1))
+	pontos_inconclusivos = "\n\nPontos inconclusivos: \n\n"
+
+	file1.write((title + "\n\n"))
+	for i in range(len(dataset)):
+		media[i] = media_sac(dataset[i], 0, len(dataset[i]))
+		desvio[i] = desvio_sac(dataset[i], 0, len(dataset[i]))
+		file1.write((arquivos[i] + ":" + " Média - " + str(round(media[i], 4)) + "\n"))
+		file1.write((arquivos[i] + ":" + " Desvio padrao - " + str(round(desvio[i], 4)) + "\n"))
+		file1.write((arquivos[i] + ":" + " Limite inferior - " + str(round(media[i] - desvio[i], 4)) + " | " + "Limite superior - " + str(round(media[i] + desvio[i], 4)) +"\n\n"))
+
+	for i in range(len(dataset)): # Arquivos com os mesmos eixos
+		inconclusiveFlag = 0
+		for j in range( (len(dataset[i]) - window_size + 1) ): # array com n pontos
+			janela = dataset[i][j:j+window_size]
+			conclusion = np.zeros((len(arquivos) + 1))
+			track = np.zeros(window_size)
+
+			for k in range(len(janela)):
+				if (janela[k] >= media[0] - desvio[0] and janela[k] <= media[0] + desvio[0]):
+					conclusion[0] += 1
+					continue
+
+				elif(janela[k] >= media[1] - desvio[1] and janela[k] <= media[1] + desvio[1]):
+					conclusion[1] += 1
+					continue
+
+				elif(janela[k] >= media[2] - desvio[2] and janela[k] <= media[2] + desvio[2]):
+					conclusion[2] += 1
+					continue
+
+				elif(janela[k] >= media[3] - desvio[3] and janela[k] <= media[3] + desvio[3]):
+					conclusion[3] += 1
+					continue
+				
+				else:
+					conclusion[4] += 1
+					track[k] = 1
+			
+			matrix[i][np.argmax(conclusion)] += 1
+			if( np.argmax(conclusion) == 4):
+				inconclusiveFlag += 1
+				pontos_inconclusivos += (f"{arquivos[i]}-{j}: [")
+				for n in range(len(janela)-1):
+					if(track[n] == 1):
+						pontos_inconclusivos += (f"({round(janela[n],3)}),")
+					else:
+						pontos_inconclusivos += (f"{round(janela[n],3)},")
+				if(track[len(janela)-1] == 1):
+					pontos_inconclusivos += (f"({round(janela[len(janela)-1],3)})]  ")
+				else:
+					pontos_inconclusivos += (f"{round(janela[len(janela)-1],3)}]  ")
+				if(inconclusiveFlag == 3):
+					pontos_inconclusivos += "\n"
+					inconclusiveFlag = 0
+
+		pontos_inconclusivos += "\n\n"
+			
+
+	file1.write(f"Matriz de confusao - Janela Deslizante[{window_size}] - N{N}\n\n")
+	file1.write((f"{'Arquivo':<10}"))
+	for i in range(len(arquivos)):
+		file1.write(f"{arquivos[i]:<10}")
+	file1.write(f"{'Inconclusivo':<10}\n")
+
+	for i in range(len(matrix)):
+		file1.write(f"{arquivos[i]:<10}{matrix[i][0]:<10}{matrix[i][1]:<10}{matrix[i][2]:<10}{matrix[i][3]:<10}{matrix[i][4]:<10}\n\n")
+
+	pontos_inconclusivos += "\n\n"
+	file1.write(pontos_inconclusivos)
+
+	file1.close()
