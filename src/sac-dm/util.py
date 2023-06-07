@@ -506,11 +506,9 @@ def confusionMatrixInTxt(dataset, arquivos, title):
 
 	file1.close()
 
-def cleanTxt():
-	file1 = open('confusionMatrix.txt', 'w+')
-	file1.truncate(0)
-	file1.close()
-	file1 = open('confusionMatrixSlidingWindow.txt', 'a+')
+def cleanTxt(N, window_size):
+	filename = (f"DetailedSlidingWindowN{N}Size{window_size}.txt")
+	file1 = open(filename, 'a+')
 	file1.truncate(0)
 	file1.close()
 
@@ -523,13 +521,15 @@ def get_change(current, previous):
     except ZeroDivisionError:
         return float('inf')
 
-def slidingWindowInTxt(dataset, arquivos, title, window_size, N):
+def slidingWindowDetailedInTxt(dataset, arquivos, title, window_size, N):
 
-	file1 = open('confusionMatrixSlidingWindow.txt', 'a+')
+	filename = (f"DetailedSlidingWindowN{N}Size{window_size}.txt")
+	file1 = open(filename, 'a+')
 	media = np.zeros((len(dataset)))
 	desvio = np.zeros((len(dataset)))
 	matrix = np.zeros((len(dataset),len(dataset)+1))
 	pontos_inconclusivos = "\n\nPontos inconclusivos: \n\n"
+	pontos_inconclusivos_int = np.zeros((len(dataset),len(dataset[0])))
 
 	file1.write((title + "\n\n"))
 	for i in range(len(dataset)):
@@ -571,6 +571,7 @@ def slidingWindowInTxt(dataset, arquivos, title, window_size, N):
 			if( np.argmax(conclusion) == 4):
 				inconclusiveFlag += 1
 				pontos_inconclusivos += (f"{arquivos[i]}-{j}: [")
+				pontos_inconclusivos_int[i][j] = dataset[i][j]
 				for n in range(len(janela)-1):
 					if(track[n] == 1):
 						pontos_inconclusivos += (f"({round(janela[n],3)}),")
@@ -597,6 +598,191 @@ def slidingWindowInTxt(dataset, arquivos, title, window_size, N):
 		file1.write(f"{arquivos[i]:<10}{matrix[i][0]:<10}{matrix[i][1]:<10}{matrix[i][2]:<10}{matrix[i][3]:<10}{matrix[i][4]:<10}\n\n")
 
 	pontos_inconclusivos += "\n\n"
+
+	qtd_max_pontos = 0
+	for i in range(len(dataset)):
+		if(matrix[i][4] > qtd_max_pontos):
+			qtd_max_pontos = int(matrix[i][4])
+
+	tabela_porcentagem_menor = np.zeros((len(dataset),11))
+	tabela_porcentagem_maior = np.zeros((len(dataset),11))
+	pontos_inconclusivos_porcent_Menor = np.zeros((len(dataset),qtd_max_pontos))
+	pontos_inconclusivos_porcent_Maior = np.zeros((len(dataset),qtd_max_pontos))
+
+	
+
+	for i in range(len(pontos_inconclusivos_int)):
+		aux_porcent = 0
+		for j in range(len(pontos_inconclusivos_int[i])):
+			if (pontos_inconclusivos_int[i][j] != 0):
+				if (pontos_inconclusivos_int[i][j] < (media[i] - desvio[i])):
+					percentagem = get_change(pontos_inconclusivos_int[i][j], (media[i] - desvio[i]))
+					pontos_inconclusivos_porcent_Menor[i][aux_porcent] = percentagem
+					aux_porcent += 1
+
+				elif (pontos_inconclusivos_int[i][j] > (media[i] + desvio[i])):
+					percentagem = get_change(pontos_inconclusivos_int[i][j], (media[i] + desvio[i]))
+					pontos_inconclusivos_porcent_Maior[i][aux_porcent] = percentagem
+					aux_porcent += 1
+
+	faixas_porcentagem = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
+	for i in range(len(pontos_inconclusivos_porcent_Menor)):
+		for j in range(len(pontos_inconclusivos_porcent_Menor[i])):
+			valor = pontos_inconclusivos_porcent_Menor[i][j]
+			for k in range(len(faixas_porcentagem)-1):
+				if (valor != 0 and valor > faixas_porcentagem[k] and valor <= faixas_porcentagem[k+1]):
+					tabela_porcentagem_menor[i][k] += 1
+				if (valor != 0 and valor > faixas_porcentagem[10]):
+					tabela_porcentagem_menor[i][10] += 1
+
+	for i in range(len(pontos_inconclusivos_porcent_Maior)):
+		for j in range(len(pontos_inconclusivos_porcent_Maior[i])):
+			valor = pontos_inconclusivos_porcent_Maior[i][j]
+			for k in range(len(faixas_porcentagem)-1):
+				if (valor != 0 and valor > faixas_porcentagem[k] and valor <= faixas_porcentagem[k+1]):
+					tabela_porcentagem_maior[i][k] += 1
+				if (valor != 0 and valor > faixas_porcentagem[10]):
+					tabela_porcentagem_maior[i][10] += 1
+
+	file1.write("\nTabela das porcentagens menores que o limite inferior: \n\n")
+	file1.write((f"{'':<10}"))
+	file1.write((f"{'0-10%':<10}") + (f"{'10-20%':<10}") + (f"{'20-30%':<10}") + (f"{'30-40%':<10}") + (f"{'40-50%':<10}") + (f"{'50-60%':<10}") + (f"{'60-70%':<10}") + (f"{'70-80%':<10}") + (f"{'80-90%':<10}") + (f"{'90-100%':<10}") + (f"{'>100%':<10}\n"))
+	for i in range(len(tabela_porcentagem_menor)):
+		file1.write((f"{arquivos[i]:<10}"))
+		for j in range(len(tabela_porcentagem_menor[i])):
+			file1.write(f"{tabela_porcentagem_menor[i][j]:<10}")
+		file1.write("\n")
+	file1.write("\n\n")	
+	
+	file1.write("Tabela das porcentagem maiores que o limite superior: \n\n")
+	file1.write((f"{'':<10}"))
+	file1.write((f"{'0-10%':<10}") + (f"{'10-20%':<10}") + (f"{'20-30%':<10}") + (f"{'30-40%':<10}") + (f"{'40-50%':<10}") + (f"{'50-60%':<10}") + (f"{'60-70%':<10}") + (f"{'70-80%':<10}") + (f"{'80-90%':<10}") + (f"{'90-100%':<10}") + (f"{'>100%':<10}\n"))
+	for i in range(len(tabela_porcentagem_maior)):
+		file1.write((f"{arquivos[i]:<10}"))
+		for j in range(len(tabela_porcentagem_maior[i])):
+			file1.write(f"{tabela_porcentagem_maior[i][j]:<10}")
+		file1.write("\n")
+
 	file1.write(pontos_inconclusivos)
+
+	file1.close()
+
+
+def slidingWindowResumeInTxt(dataset, arquivos, title, window_size, N):
+
+	filename = (f"ResumedSlidingWindowN{N}Size{window_size}.txt")
+	file1 = open(filename, 'a+')
+	media = np.zeros((len(dataset)))
+	desvio = np.zeros((len(dataset)))
+	matrix = np.zeros((len(dataset),len(dataset)+1))
+	pontos_inconclusivos = "\n\nPontos inconclusivos: \n\n"
+	pontos_inconclusivos_int = np.zeros((len(dataset),len(dataset[0])))
+
+	file1.write((title + "\n\n"))
+	for i in range(len(dataset)):
+		media[i] = media_sac(dataset[i], 0, len(dataset[i]))
+		desvio[i] = desvio_sac(dataset[i], 0, len(dataset[i]))
+		file1.write((arquivos[i] + ":" + " Limite inferior - " + str(round(media[i] - desvio[i], 4)) + " | " + "Limite superior - " + str(round(media[i] + desvio[i], 4)) +"\n\n"))
+
+	for i in range(len(dataset)): # Arquivos com os mesmos eixos
+
+		for j in range( (len(dataset[i]) - window_size + 1) ): # array com n pontos
+			janela = dataset[i][j:j+window_size]
+			conclusion = np.zeros((len(arquivos) + 1))
+			track = np.zeros(window_size)
+
+			for k in range(len(janela)):
+				if (janela[k] >= media[0] - desvio[0] and janela[k] <= media[0] + desvio[0]):
+					conclusion[0] += 1
+					continue
+
+				elif(janela[k] >= media[1] - desvio[1] and janela[k] <= media[1] + desvio[1]):
+					conclusion[1] += 1
+					continue
+
+				elif(janela[k] >= media[2] - desvio[2] and janela[k] <= media[2] + desvio[2]):
+					conclusion[2] += 1
+					continue
+
+				elif(janela[k] >= media[3] - desvio[3] and janela[k] <= media[3] + desvio[3]):
+					conclusion[3] += 1
+					continue
+				
+				else:
+					conclusion[4] += 1
+					track[k] = 1
+			
+			matrix[i][np.argmax(conclusion)] += 1
+			if( np.argmax(conclusion) == 4):
+				pontos_inconclusivos_int[i][j] = dataset[i][j]
+				
+
+
+			
+
+	file1.write(f"Janela Deslizante[{window_size}] - N{N}\n\n")
+
+	qtd_max_pontos = 0
+	for i in range(len(dataset)):
+		if(matrix[i][4] > qtd_max_pontos):
+			qtd_max_pontos = int(matrix[i][4])
+
+	tabela_porcentagem_menor = np.zeros((len(dataset),11))
+	tabela_porcentagem_maior = np.zeros((len(dataset),11))
+	pontos_inconclusivos_porcent_Menor = np.zeros((len(dataset),qtd_max_pontos))
+	pontos_inconclusivos_porcent_Maior = np.zeros((len(dataset),qtd_max_pontos))
+
+	for i in range(len(pontos_inconclusivos_int)):
+		aux_porcent = 0
+		for j in range(len(pontos_inconclusivos_int[i])):
+			if (pontos_inconclusivos_int[i][j] != 0):
+				if (pontos_inconclusivos_int[i][j] < (media[i] - desvio[i])):
+					percentagem = get_change(pontos_inconclusivos_int[i][j], (media[i] - desvio[i]))
+					pontos_inconclusivos_porcent_Menor[i][aux_porcent] = percentagem
+					aux_porcent += 1
+
+				elif (pontos_inconclusivos_int[i][j] > (media[i] + desvio[i])):
+					percentagem = get_change(pontos_inconclusivos_int[i][j], (media[i] + desvio[i]))
+					pontos_inconclusivos_porcent_Maior[i][aux_porcent] = percentagem
+					aux_porcent += 1
+
+	faixas_porcentagem = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
+	for i in range(len(pontos_inconclusivos_porcent_Menor)):
+		for j in range(len(pontos_inconclusivos_porcent_Menor[i])):
+			valor = pontos_inconclusivos_porcent_Menor[i][j]
+			for k in range(len(faixas_porcentagem)-1):
+				if (valor != 0 and valor > faixas_porcentagem[k] and valor <= faixas_porcentagem[k+1]):
+					tabela_porcentagem_menor[i][k] += 1
+				if (valor != 0 and valor > faixas_porcentagem[10]):
+					tabela_porcentagem_menor[i][10] += 1
+
+	for i in range(len(pontos_inconclusivos_porcent_Maior)):
+		for j in range(len(pontos_inconclusivos_porcent_Maior[i])):
+			valor = pontos_inconclusivos_porcent_Maior[i][j]
+			for k in range(len(faixas_porcentagem)-1):
+				if (valor != 0 and valor > faixas_porcentagem[k] and valor <= faixas_porcentagem[k+1]):
+					tabela_porcentagem_maior[i][k] += 1
+				if (valor != 0 and valor > faixas_porcentagem[10]):
+					tabela_porcentagem_maior[i][10] += 1
+
+	file1.write("\nTabela das porcentagens menores que o limite inferior: \n\n")
+	file1.write((f"{'':<10}"))
+	file1.write((f"{'0-10%':<10}") + (f"{'10-20%':<10}") + (f"{'20-30%':<10}") + (f"{'30-40%':<10}") + (f"{'40-50%':<10}") + (f"{'50-60%':<10}") + (f"{'60-70%':<10}") + (f"{'70-80%':<10}") + (f"{'80-90%':<10}") + (f"{'90-100%':<10}") + (f"{'>100%':<10}\n"))
+	for i in range(len(tabela_porcentagem_menor)):
+		file1.write((f"{arquivos[i]:<10}"))
+		for j in range(len(tabela_porcentagem_menor[i])):
+			file1.write(f"{tabela_porcentagem_menor[i][j]:<10}")
+		file1.write("\n")
+	file1.write("\n\n")	
+	
+	file1.write("Tabela das porcentagem maiores que o limite superior: \n\n")
+	file1.write((f"{'':<10}"))
+	file1.write((f"{'0-10%':<10}") + (f"{'10-20%':<10}") + (f"{'20-30%':<10}") + (f"{'30-40%':<10}") + (f"{'40-50%':<10}") + (f"{'50-60%':<10}") + (f"{'60-70%':<10}") + (f"{'70-80%':<10}") + (f"{'80-90%':<10}") + (f"{'90-100%':<10}") + (f"{'>100%':<10}\n"))
+	for i in range(len(tabela_porcentagem_maior)):
+		file1.write((f"{arquivos[i]:<10}"))
+		for j in range(len(tabela_porcentagem_maior[i])):
+			file1.write(f"{tabela_porcentagem_maior[i][j]:<10}")
+		file1.write("\n")
+	file1.write("\n\n")	
 
 	file1.close()
