@@ -141,28 +141,36 @@ def plotSAC_AM_DM():
 	# Plotando graficos de forma individual
 
 	# 								SAC-AM
-	utilLite.showSAC([sac_am_F0_x, sac_am_F6_x, sac_am_F14_x, sac_am_F22_x], "SAC-AM: Eixo X")
-	utilLite.showSAC([sac_am_F0_y, sac_am_F6_y, sac_am_F14_y, sac_am_F22_y], "SAC-AM: Eixo Y")
-	utilLite.showSAC([sac_am_F0_z, sac_am_F6_z, sac_am_F14_z, sac_am_F22_z], "SAC-AM: Eixo Z")
+	# utilLite.showSAC([sac_am_F0_x, sac_am_F6_x, sac_am_F14_x, sac_am_F22_x], "SAC-AM: Eixo X")
+	# utilLite.showSAC([sac_am_F0_y, sac_am_F6_y, sac_am_F14_y, sac_am_F22_y], "SAC-AM: Eixo Y")
+	# utilLite.showSAC([sac_am_F0_z, sac_am_F6_z, sac_am_F14_z, sac_am_F22_z], "SAC-AM: Eixo Z")
 
-	# 								SAC-DM
-	utilLite.showSAC([sac_dm_F0_x, sac_dm_F6_x, sac_dm_F14_x, sac_dm_F22_x], "SAC-DM: Eixo X")
-	utilLite.showSAC([sac_dm_F0_y, sac_dm_F6_y, sac_dm_F14_y, sac_dm_F22_y], "SAC-DM: Eixo Y")
-	utilLite.showSAC([sac_dm_F0_z, sac_dm_F6_z, sac_dm_F14_z, sac_dm_F22_z], "SAC-DM: Eixo Z")
+	# # 								SAC-DM
+	# utilLite.showSAC([sac_dm_F0_x, sac_dm_F6_x, sac_dm_F14_x, sac_dm_F22_x], "SAC-DM: Eixo X")
+	# utilLite.showSAC([sac_dm_F0_y, sac_dm_F6_y, sac_dm_F14_y, sac_dm_F22_y], "SAC-DM: Eixo Y")
+	# utilLite.showSAC([sac_dm_F0_z, sac_dm_F6_z, sac_dm_F14_z, sac_dm_F22_z], "SAC-DM: Eixo Z")
 	
 	
 	# # # 								Janela Deslizante com pontos inconclusivos impressos em um arquivo txt
-	utilLite.cleanTxtDetailed(N, int(sys.argv[4]))
-	utilLite.slidingWindowDetailedInTxt([sac_am_F0_x, sac_am_F6_x, sac_am_F14_x, sac_am_F22_x], ["F0", "F6", "F14", "F22"], "SAC-AM: Eixo X", int(sys.argv[4]), N)
-	utilLite.slidingWindowDetailedInTxt([sac_am_F0_y, sac_am_F6_y, sac_am_F14_y, sac_am_F22_y], ["F0", "F6", "F14", "F22"], "SAC-AM: Eixo Y", int(sys.argv[4]), N)
-	utilLite.slidingWindowDetailedInTxt([sac_am_F0_z, sac_am_F6_z, sac_am_F14_z, sac_am_F22_z], ["F0", "F6", "F14", "F22"], "SAC-AM: Eixo Z", int(sys.argv[4]), N)
+	# utilLite.cleanTxtDetailed(N, int(sys.argv[4]))
+	# utilLite.jumpingWindowDetailedInTxt([sac_am_F0_x, sac_am_F6_x, sac_am_F14_x, sac_am_F22_x], ["F0", "F6", "F14", "F22"], "SAC-AM: Eixo X", int(sys.argv[4]), N)
+	# utilLite.jumpingWindowDetailedInTxt([sac_am_F0_y, sac_am_F6_y, sac_am_F14_y, sac_am_F22_y], ["F0", "F6", "F14", "F22"], "SAC-AM: Eixo Y", int(sys.argv[4]), N)
+	# utilLite.jumpingWindowDetailedInTxt([sac_am_F0_z, sac_am_F6_z, sac_am_F14_z, sac_am_F22_z], ["F0", "F6", "F14", "F22"], "SAC-AM: Eixo Z", int(sys.argv[4]), N)
 
-	utilLite.slidingWindowDetailedInTxt([sac_dm_F0_x, sac_dm_F6_x, sac_dm_F14_x, sac_dm_F22_x], ["F0", "F6", "F14", "F22"], "SAC-DM: Eixo X", int(sys.argv[4]), N)
-	utilLite.slidingWindowDetailedInTxt([sac_dm_F0_y, sac_dm_F6_y, sac_dm_F14_y, sac_dm_F22_y], ["F0", "F6", "F14", "F22"], "SAC-DM: Eixo Y", int(sys.argv[4]), N)
-	utilLite.slidingWindowDetailedInTxt([sac_dm_F0_z, sac_dm_F6_z, sac_dm_F14_z, sac_dm_F22_z], ["F0", "F6", "F14", "F22"], "SAC-DM: Eixo Z", int(sys.argv[4]), N)
+	# utilLite.jumpingWindowDetailedInTxt([sac_dm_F0_x, sac_dm_F6_x, sac_dm_F14_x, sac_dm_F22_x], ["F0", "F6", "F14", "F22"], "SAC-DM: Eixo X", int(sys.argv[4]), N)
+	# utilLite.jumpingWindowDetailedInTxt([sac_dm_F0_y, sac_dm_F6_y, sac_dm_F14_y, sac_dm_F22_y], ["F0", "F6", "F14", "F22"], "SAC-DM: Eixo Y", int(sys.argv[4]), N)
+	# utilLite.jumpingWindowDetailedInTxt([sac_dm_F0_z, sac_dm_F6_z, sac_dm_F14_z, sac_dm_F22_z], ["F0", "F6", "F14", "F22"], "SAC-DM: Eixo Z", int(sys.argv[4]), N)
 
-	# plt.show()
+	# # # 								Plots com a comparação Janela Deslizante vs Janela Pulante
+	utilLite.windowsPlot([sac_am_F0_x, sac_am_F6_x, sac_am_F14_x, sac_am_F22_x], ["F0", "F6", "F14", "F22"], "SAC-AM: Eixo X", int(sys.argv[4]), N)
+	utilLite.windowsPlot([sac_am_F0_y, sac_am_F6_y, sac_am_F14_y, sac_am_F22_y], ["F0", "F6", "F14", "F22"], "SAC-AM: Eixo Y", int(sys.argv[4]), N)
+	utilLite.windowsPlot([sac_am_F0_z, sac_am_F6_z, sac_am_F14_z, sac_am_F22_z], ["F0", "F6", "F14", "F22"], "SAC-AM: Eixo Z", int(sys.argv[4]), N)
 
+	utilLite.windowsPlot([sac_dm_F0_x, sac_dm_F6_x, sac_dm_F14_x, sac_dm_F22_x], ["F0", "F6", "F14", "F22"], "SAC-DM: Eixo X", int(sys.argv[4]), N)
+	utilLite.windowsPlot([sac_dm_F0_y, sac_dm_F6_y, sac_dm_F14_y, sac_dm_F22_y], ["F0", "F6", "F14", "F22"], "SAC-DM: Eixo Y", int(sys.argv[4]), N)
+	utilLite.windowsPlot([sac_dm_F0_z, sac_dm_F6_z, sac_dm_F14_z, sac_dm_F22_z], ["F0", "F6", "F14", "F22"], "SAC-DM: Eixo Z", int(sys.argv[4]), N)
+
+	plt.show()
 	return 0
 
 #********* Main ********
