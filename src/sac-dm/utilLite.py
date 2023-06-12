@@ -80,8 +80,14 @@ def amostragem_sac(dataset, inicio, fim):
 
 	return dataset[inicio:fim]
 
-def cleanTxtDetailed(N, window_size):
+def cleanTxtDetailedJ(N, window_size):
 	filename = (f"LiteJumpingWindowN{N}Size{window_size}.txt")
+	file1 = open(filename, 'a+')
+	file1.truncate(0)
+	file1.close()
+
+def cleanTxtDetailedS(N, window_size):
+	filename = (f"LiteSlidingWindowN{N}Size{window_size}.txt")
 	file1 = open(filename, 'a+')
 	file1.truncate(0)
 	file1.close()
@@ -117,7 +123,7 @@ def slidingWindowDetailedInTxt(dataset, arquivos, title, window_size, N):
 		for j in range( (len(dataset[i]) - window_size + 1) ): # array com n pontos
 			janela = dataset[i][j:j+window_size]
 			conclusion = np.zeros((len(arquivos) + 1))
-			count_window += 1
+			
 			for k in range(len(janela)):
 				if (janela[k] >= media[0] - desvio[0] and janela[k] <= media[0] + desvio[0]):
 					conclusion[0] += 1
@@ -140,12 +146,14 @@ def slidingWindowDetailedInTxt(dataset, arquivos, title, window_size, N):
 			
 			if(j == (len(dataset[i]) - window_size)):
 				matrix[i][np.argmax(conclusion)] += 1 * window_size
+				count_window[i] += 1 * window_size
 			else:
 				matrix[i][np.argmax(conclusion)] += 1
+				count_window[i] += 1
 
 				
 
-	file1.write(f"Matriz de confusao - Janela Deslizante[{window_size}] - N{N}\n\n")
+	file1.write(f"Matriz de confusao - Janela Deslizante[{window_size}] - N{N} - Qtd de janelas{count_window}\n\n")
 	file1.write((f"{'Arquivo':<10}"))
 	for i in range(len(arquivos)):
 		file1.write(f"{arquivos[i]:<10}")
@@ -154,7 +162,8 @@ def slidingWindowDetailedInTxt(dataset, arquivos, title, window_size, N):
 	for i in range(len(matrix)):
 		file1.write(f"{arquivos[i]:<10}")
 		for j in range(len(matrix[i])):
-			matrixSaida[i][j] = round(get_change_t(matrix[i][j],count_window[i]),2)
+			# matrixSaida[i][j] = round(get_change_t(matrix[i][j],count_window[i]),2)
+			matrixSaida[i][j] = round(matrix[i][j],2)
 			file1.write(f"{matrixSaida[i][j]:<10}")
 		file1.write("\n\n")
 
@@ -237,7 +246,7 @@ def jumpingWindowDetailedInTxt(dataset, arquivos, title, window_size, N):
 				pontos_inconclusivos_int[i][j] = dataset[i][j]
 				
 
-	file1.write(f"Matriz de confusao - Janela Pulante[{window_size}] - N{N}\n\n")
+	file1.write(f"Matriz de confusao - Janela Pulante[{window_size}] - N{N} - Qtd de janelas{count_points}\n\n")
 	file1.write((f"{'Arquivo':<10}"))
 	for i in range(len(arquivos)):
 		file1.write(f"{arquivos[i]:<10}")
@@ -246,7 +255,8 @@ def jumpingWindowDetailedInTxt(dataset, arquivos, title, window_size, N):
 	for i in range(len(matrix)):
 		file1.write(f"{arquivos[i]:<10}")
 		for j in range(len(matrix[i])):
-			matrixSaida[i][j] = round(get_change_t(matrix[i][j],(count_points[i])),2 )		
+			# matrixSaida[i][j] = round(get_change_t(matrix[i][j],(count_points[i])),2 )		
+			matrixSaida[i][j] = round(matrix[i][j],2 )
 			file1.write(f"{matrixSaida[i][j]:<10}")
 		file1.write("\n\n")
 
@@ -272,7 +282,7 @@ def windowsPlot(dataset, arquivos, title, window_size, N):
 		for j in range( (len(dataset[i]) - window_size + 1) ): # array com n pontos
 			janela = dataset[i][j:j+window_size]
 			conclusion = np.zeros((len(arquivos) + 1))
-			count_window_sliding += 1
+			
 			for k in range(len(janela)):
 				if (janela[k] >= media[0] - desvio[0] and janela[k] <= media[0] + desvio[0]):
 					conclusion[0] += 1
@@ -295,8 +305,10 @@ def windowsPlot(dataset, arquivos, title, window_size, N):
 			
 			if(j == (len(dataset[i]) - window_size)):
 				matrixSliding[i][np.argmax(conclusion)] += 1 * window_size
+				count_window_sliding[i] += 1 * window_size
 			else:
 				matrixSliding[i][np.argmax(conclusion)] += 1
+				count_window_sliding[i] += 1
 
 	for i in range(len(dataset)): # Arquivos com os mesmos eixos
 		for j in range( 0, (len(dataset[i])), window_size): # array com n pontos
