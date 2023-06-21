@@ -10,7 +10,6 @@ def treinamentoCompleto(dataset, title, fig, ax):
 	plt.ylabel(aux[0]) 
 	plt.xlabel('Time (ms)')
 	
-
 	ax.set_title(title)  
 	colors = list(mcolors.CSS4_COLORS) 
 
@@ -26,7 +25,6 @@ def treinamentoCompleto(dataset, title, fig, ax):
 
 	ax.plot(x,y,color=colors[10], label = "Média do Arquivo F0")
 
-
 	plt.xlim(right = (len(dataset)))
 
 	for j in range(len(dataset)):
@@ -35,8 +33,6 @@ def treinamentoCompleto(dataset, title, fig, ax):
 			ax.errorbar(j,media_dataset,yerr = aux_desv[j], color = colors[20],marker='s', capsize=2, markersize=4, linewidth=1, linestyle='--')
 
 	ax.fill_between(x, media_dataset - desv_dataset, media_dataset + desv_dataset, alpha = 0.2, label = "Desvio Padrão do Arquivo F0")
-
-
 
 
 def testagem(dataset, title, fig, ax, color):
@@ -150,8 +146,6 @@ def slidingWindowDetailedInTxt(dataset, arquivos, title, window_size, N):
 			else:
 				matrix[i][np.argmax(conclusion)] += 1
 				count_window[i] += 1
-
-				
 
 	file1.write(f"Matriz de confusao - Janela Deslizante[{window_size}] - N{N} - Qtd de janelas{count_window}\n\n")
 	file1.write((f"{'Arquivo':<10}"))
