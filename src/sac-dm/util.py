@@ -31,37 +31,6 @@ def treinamentoMetade(dataset, title, fig, ax, file_tag):
 
 	ax.fill_between(x, media_dataset - desv_dataset, media_dataset + desv_dataset, alpha = 0.2, label = (f"Desvio Padrão da primeira metade do Arquivo {file_tag}"))
 
-def treinamentoCompleto(dataset, title, fig, ax, file_tag):
-	
-	aux = title.split(':',1)
-	plt.ylabel(aux[0]) 
-	plt.xlabel('Time (ms)')
-
-	ax.set_title(title)  
-	colors = list(mcolors.CSS4_COLORS) 
-
-	media_dataset = media_sac(dataset, 0, round(len(dataset)))
-	desv_dataset = desvio_sac(dataset, 0, round(len(dataset)))
-
-	aux_desv = np.zeros(len(dataset))
-	aux_desv[round((len(dataset))/2)] = desv_dataset
-
-	x = np.arange(len(dataset))
-	y = np.zeros(len(dataset))
-	y = np.full_like(y, media_dataset)
-
-	ax.plot(x,y,color=colors[10], label = (f"Média do Arquivo {file_tag}"))
-
-
-	plt.xlim(right = (len(dataset)))
-
-	for j in range(len(dataset)):
-
-		if(aux_desv[j] != 0):			
-			ax.errorbar(j,media_dataset,yerr = aux_desv[j], color = colors[20],marker='s', capsize=2, markersize=4, linewidth=1, linestyle='--')
-
-	ax.fill_between(x, media_dataset - desv_dataset, media_dataset + desv_dataset, alpha = 0.2, label = (f"Desvio Padrão do Arquivo {file_tag}"))
-
 def testagem(dataset, title, fig, ax, color):
 
 	colors = list(mcolors.CSS4_COLORS) 
@@ -83,44 +52,6 @@ def showTreinamentoM(dataset, title, file_tag):
 		axs[i].set(ylabel = auxT[i])
 		# axs[i].legend(loc = 'upper right')
 
-def showTreinamentoC(dataset, title, file_tag):	
-	
-	fig, axs = plt.subplots(3)
-	fig.suptitle(title)
-
-	#				Criando os titulos dos subgrafos
-	auxT = [("Eixo X"), ("Eixo Y"), ("Eixo Z")]
-	
-	for i in range(len(dataset)):
-		# axs[i].set_title(auxT[i])
-		treinamentoCompleto(dataset[i], "", fig, axs[i],file_tag)
-		testagem(dataset[i], (f"Segunda metade do arquivo {file_tag}"), fig, axs[i], (11+i))
-		axs[i].set(ylabel = auxT[i])
-		# axs[i].legend(loc = 'upper right')
-
-
-
-def showSAC_figUnicaComTreinoC(dataset, title, file_tag):
- 
-	# # Criando graficos base ( Treinamento )
-	fig, axs = plt.subplots(3)
-
-	fig.suptitle(title)
-	aux = title.split(':',1)
-
-	# # Plotar os eixos nos gráficos base ( Teste )
-	for i in range(len(dataset[0])):#	eixos 
-		treinamentoCompleto(dataset[0][i], "", fig, axs[i], file_tag[0])
-
-		for j in range(len(dataset)):# arquivos
-			testagem(dataset[j][i], (f"Arquivo: {file_tag[j]}"), fig, axs[i], (11+j))
-
-		axs[i].set_xlim(-1, round(len(dataset[0][i])))
-		axs[i].legend(loc='lower right')
-
-	axs[0].set(ylabel = (aux[0] + ": Eixo X"))
-	axs[1].set(ylabel = (aux[0] + ": Eixo Y"))
-	axs[2].set(ylabel = (aux[0] + ": Eixo Z"))
 
 def showSAC_figUnicaComTreinoM(dataset, title, file_tag):
 
@@ -387,9 +318,6 @@ def cleanTxtSliding(N, window_size):
 
 def cleanTxtMatrix(N):
 	filename = (f"confusionMatrixHalfTrainingN{N}.txt")
-	file1 = open(filename, 'a+')
-	file1.truncate(0)
-	filename = (f"confusionMatrixCompleteTrainingN{N}.txt")
 	file1 = open(filename, 'a+')
 	file1.truncate(0)
 	file1.close()

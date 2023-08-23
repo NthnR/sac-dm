@@ -62,6 +62,28 @@ def sac_am(data, N):
 	
 	return sacdm
 
+def plot_SAC_AM_DM(file_paths, file_columns, file_tags):
+
+	N = int(sys.argv[1])
+	files[len(file_paths)]
+	file_axes[len(file_paths)][5]
+	sac_am[len(file_paths)][3]
+	sac_dm[len(file_paths)][3]
+	
+	for i in range(len(file_paths)): # Abrindo arquivos
+		files[i] = np.genfromtxt( file_paths[i], delimiter=';', names=file_columns)
+
+		for j in range(5):	# Extraindo eixos
+			file_axes[i][j] = files[file_columns].reshape(-1)
+
+			if( j < 3): # Obtendo SACs
+				sac_am[i][j] = sac_am(file_axes[i][j], N)
+				sac_dm[i][j] = sac_dm(file_axes[i][j], N)
+				sac_am[i][j].pop()
+				sac_dm[i][j].pop()
+	
+	
+	return 0
 
 def plot_SAC_AM_DM_drone_signals():
 	N = int(sys.argv[1])
