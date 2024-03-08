@@ -53,7 +53,6 @@ def sac_am(data, N):
 	for k in range(size):
 		peaks, _ = find_peaks(data[inicio:fim])
 		v = np.abs(data[peaks])
-		# s = sum(v)
 		s = np.mean(v)
 		sacdm[k] = 1.0*s/N
 		inicio = fim
@@ -504,7 +503,7 @@ file_paths = [     "../../files/hexacopter_signals/nominal_flight/NFlt01n1.csv",
 # 			"../../files/hexacopter_signals/failure_condition_3/FC3Flt01n3.csv" ]
 
 
-file_tags = [ "Nflt","FC1", "FC2", "FC3"]
+file_tags = [ "NF","FC1", "FC2", "FC3"]
 
 file_columns = ['x','y','z','t']
 
