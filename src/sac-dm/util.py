@@ -75,14 +75,14 @@ def windowCompare( window, average, deviation, file_tags ):
 
 			result = np.logical_and(window[i] >= (average[i][j] - deviation[i][j]), window[i] <= (average[i][j] + deviation[i][j]))
 			auxConclusion = np.where(result == True)[0]
-
+			
 			#checks if the entire window is classified with the same tag
 			if(len(auxConclusion) == len(file_tags)):
 				conclusion[i] = j
 				break
 			
 			#checks whether the majority of points contained in the window are classified with the same tag
-			if(len(auxConclusion) >= (len(window[i])- len(auxConclusion))):
+			if(len(auxConclusion) >= (len(window[i])/ 2 )):
 				conclusion[i] = j
 				break
 			
@@ -97,6 +97,7 @@ def windowCompare( window, average, deviation, file_tags ):
 	for i in range(len(file_tags)):
 		auxConclusion = np.where(conclusion == i)[0]
 		if(len(auxConclusion) == len(conclusion)):
+			# print(f"Janela: {auxConclusion} F{i} Iguais")
 			return i
 	
 	auxConclusion = np.where(conclusion > 0)[0]
@@ -104,13 +105,16 @@ def windowCompare( window, average, deviation, file_tags ):
 	#check if at least one axis is outside the normal condition
 	#only one axis outside the normal condition
 	if(len(auxConclusion) == 1):
+		# print(f"Janela: {auxConclusion} F{i} 1 Fora normal")
 		return auxConclusion
 	
 	#more than one axis outside the normal condition but with the same fault condition
 	if(len(auxConclusion) == 2 and conclusion[auxConclusion[0]] == conclusion[auxConclusion[1]]):
+		# print(f"Janela: {auxConclusion} F{i} +1 fora normal")
 		return conclusion[auxConclusion[0]]
 	else:
 		#different failure conditions
+		# print(f"Janela: {auxConclusion} F{i} Diferentes")
 		return len(file_tags)
 
 def saveMatrixInTxt(outputMatrix, average, deviation, title, N, filename, file_tags, header):
@@ -539,17 +543,21 @@ def jumpingWindowAllAxes(dataset, file_tags, title, window_size, N):
 		auxSAC_x = dataset[i][0]
 		auxSAC_y = dataset[i][1]
 		auxSAC_z = dataset[i][2]
+
 		#windows SAC'S
 		for j in range( round(len(auxSAC_x)/2), (len(auxSAC_x)), window_size):
-			if (j + window_size <= len(dataset[i])):
+
+			if (j + window_size <= len(auxSAC_x)):
 				window_aux_x = auxSAC_x[j:j+window_size]
 				window_aux_y = auxSAC_y[j:j+window_size]
 				window_aux_z = auxSAC_z[j:j+window_size]
+				window_files.append([window_aux_x,window_aux_y,window_aux_z])
+
 			else:
 				window_aux_x = auxSAC_x[j:]
 				window_aux_y = auxSAC_y[j:]
 				window_aux_z = auxSAC_z[j:]	
-			window_files.append([window_aux_x,window_aux_y,window_aux_z])
+				window_files.append([window_aux_x,window_aux_y,window_aux_z])
 		
 		window.append(window_files)
 
@@ -557,6 +565,7 @@ def jumpingWindowAllAxes(dataset, file_tags, title, window_size, N):
 	for i in range(len(window)):
 		#windows
 		for j in range(len(window[i])):
+
 			conclusion = windowCompare(window[i][j], average, deviation, file_tags)
 			count_window[i] += 1
 			outputMatrix[i][conclusion] += 1

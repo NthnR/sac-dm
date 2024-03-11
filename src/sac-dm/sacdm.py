@@ -139,7 +139,7 @@ def plot_compare_windows(sac_am_by_axes, sac_dm_by_axes, file_tags, N):
 def plot_heat_all_axes_windows(sac_am_by_files, sac_dm_by_files, file_tags, N, accelerometer):
 	#Heatmap of all axes window
 	util.plot_heat_jumpingWindowAllAxes(sac_am_by_files, file_tags, (f"Accelerometer {accelerometer}: "), int(sys.argv[2]), N)
-	util.plot_heat_slidingWindowAllAxes(sac_am_by_files, file_tags, (f"Accelerometer {accelerometer}: "), int(sys.argv[2]), N)
+	# util.plot_heat_slidingWindowAllAxes(sac_am_by_files, file_tags, (f"Accelerometer {accelerometer}: "), int(sys.argv[2]), N)
 
 def plot_heat_axis_window(sac_am_by_axes, sac_dm_by_axes, file_tags, N, accelerometer):
 	#Heatmaps of one axis window
@@ -300,7 +300,7 @@ def plot_SAC_AM_DM(sac_am_by_axes, sac_am_by_files, sac_dm_by_axes, sac_dm_by_fi
 
 	# plot_trainning_test(sac_am_by_files, sac_am_by_files, file_tags, file = 0)
 
-	plot_sacs_one_figure(sac_am_by_files, sac_dm_by_files, file_tags, N)
+	# plot_sacs_one_figure(sac_am_by_files, sac_dm_by_files, file_tags, N)
 
 	# plot_sacs_by_axes(sac_am_by_files, sac_dm_by_files, file_tags)
 
@@ -312,7 +312,7 @@ def plot_SAC_AM_DM(sac_am_by_axes, sac_am_by_files, sac_dm_by_axes, sac_dm_by_fi
 
 	# plot_compare_windows(sac_am_by_axes, sac_dm_by_axes, file_tags, N)
 
-	# plot_heat_all_axes_windows(sac_am_by_files, sac_dm_by_files, file_tags, N, accelerometer=1)
+	plot_heat_all_axes_windows(sac_am_by_files, sac_dm_by_files, file_tags, N, accelerometer=1)
 
 	# plot_heat_axis_window(sac_am_by_axes, sac_dm_by_axes, file_tags, N, accelerometer=1)
 	
@@ -487,20 +487,20 @@ def plot_SAC_AM_DM_motor_signals():
 
 #********* Main ********
 
-file_paths = [     "../../files/hexacopter_signals/nominal_flight/NFlt01n1.csv",
-			"../../files/hexacopter_signals/failure_condition_1/FC1Flt01n1.csv",
-			"../../files/hexacopter_signals/failure_condition_2/FC2Flt01n1.csv",
-			"../../files/hexacopter_signals/failure_condition_3/FC3Flt01n1.csv" ]
+# file_paths = [     "../../files/hexacopter_signals/nominal_flight/NFlt01n1.csv",
+# 			"../../files/hexacopter_signals/failure_condition_1/FC1Flt01n1.csv",
+# 			"../../files/hexacopter_signals/failure_condition_2/FC2Flt01n1.csv",
+# 			"../../files/hexacopter_signals/failure_condition_3/FC3Flt01n1.csv" ]
 
 # file_paths = [     "../../files/hexacopter_signals/nominal_flight/NFlt01n2.csv",
 # 			"../../files/hexacopter_signals/failure_condition_1/FC1Flt01n2.csv",
 # 			"../../files/hexacopter_signals/failure_condition_2/FC2Flt01n2.csv",
 # 			"../../files/hexacopter_signals/failure_condition_3/FC3Flt01n2.csv" ]
 
-# file_paths = [     "../../files/hexacopter_signals/nominal_flight/NFlt01n3.csv",
-# 			"../../files/hexacopter_signals/failure_condition_1/FC1Flt01n3.csv",
-# 			"../../files/hexacopter_signals/failure_condition_2/FC2Flt01n3.csv",
-# 			"../../files/hexacopter_signals/failure_condition_3/FC3Flt01n3.csv" ]
+file_paths = [     "../../files/hexacopter_signals/nominal_flight/NFlt02n3.csv",
+			"../../files/hexacopter_signals/failure_condition_1/FC1Flt02n3.csv",
+			"../../files/hexacopter_signals/failure_condition_2/FC2Flt02n3.csv",
+			"../../files/hexacopter_signals/failure_condition_3/FC3Flt02n3.csv" ]
 
 
 file_tags = [ "NF","FC1", "FC2", "FC3"]
