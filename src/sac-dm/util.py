@@ -114,6 +114,40 @@ def windowCompare( window, average, deviation, file_tags ):
 	# print(f"Janela: {conclusion} F{i} diferentes")
 	return len(file_tags)
 
+def instantCompare( instant, average, deviation, file_tags):
+
+	conclusion = -1
+	for i in range(len(file_tags)):
+		if(instant >= (average[i] - deviation[i]) and instant <= (average[i] + deviation[i])):
+			conclusion = i
+	
+	if(conclusion == -1):
+		conclusion = len(file_tags)
+
+	return conclusion
+
+def instanteClassification(instant, file_tags):
+
+	instant = np.array(instant)
+	#check if the 3 axes are in the same condition
+	for i in range(len(file_tags)):
+		auxConclusion = np.where(instant == i)[0]
+		if(len(auxConclusion) == len(instant)):
+			# print(f"Instante: {instant} F{i} 3 Iguais")
+			return i
+
+		if(len(auxConclusion) == 2):
+			# print(f"Instante: {instant} F{i} 2 Iguais")
+			#Se 2 eixos estiverem saudaveis e outro nao
+			if(instant[auxConclusion[0]] == 0):
+				for j in range(len(instant)):
+					if(instant[j] > 0):
+
+						return instant[j]
+
+			return i
+
+	return len(file_tags)
 
 def saveMatrixInTxt(outputMatrix, average, deviation, title, N, filename, file_tags, header):
 	
@@ -532,55 +566,46 @@ def jumpingWindowAllAxes(dataset, file_tags, title, window_size, N):
 		average.append(average_list)
 		deviation.append(deviation_list)
 
-	window = []
-	#Getting all windows
+	instants_gathered = []
+	instants_classification = []
+
 	#Files
 	for i in range(len(dataset)):
-		#Axes
-		window_files = []
-		auxSAC_x = dataset[i][0]
-		auxSAC_y = dataset[i][1]
-		auxSAC_z = dataset[i][2]
+		instants_files = []
 
-		#windows SAC'S
-		for j in range( round(len(auxSAC_x)/2), (len(auxSAC_x)), window_size):
+		#SAC'S instants classification
+		for j in range( round(len(dataset[i][0])/2), (len(dataset[i][0]))):
+			conclusion = []
+			#Axes
+			for k in range(3):
+				conclusion.append(instantCompare(dataset[i][k][j], average[k], deviation[k], file_tags))
 
-			if (j + window_size <= len(auxSAC_x)):
-				window_aux_x = auxSAC_x[j:j+window_size]
-				window_aux_y = auxSAC_y[j:j+window_size]
-				window_aux_z = auxSAC_z[j:j+window_size]
-				window_files.append([window_aux_x,window_aux_y,window_aux_z])
-
-			else:
-				window_aux_x = auxSAC_x[j:]
-				window_aux_y = auxSAC_y[j:]
-				window_aux_z = auxSAC_z[j:]	
-				window_files.append([window_aux_x,window_aux_y,window_aux_z])
+			instants_files.append(conclusion)
 		
-		window.append(window_files)
+		instants_gathered.append(instants_files)
 
-	#files
-	for i in range(len(window)):
-		#windows
-		for j in range(len(window[i])):
+	for i in range(len(instants_gathered)):
+		aux_instantes = []
+		for j in range(len(instants_gathered[i])):
+			aux = instanteClassification(instants_gathered[i][j], file_tags)
+			aux_instantes.append(instanteClassification(instants_gathered[i][j], file_tags))
+			# print(f"instant: {instants_gathered[i][j]} file: {i} classification: {aux}")
+		instants_classification.append(np.array(aux_instantes))
 
-			conclusion = windowCompare(window[i][j], average, deviation, file_tags)
+
+	for i in range(len(instants_classification)):
+		for j in range(0,(len(instants_classification[i])), window_size):
 			count_window[i] += 1
-			outputMatrix[i][conclusion] += 1
-
-	# print(f"Confusion matrix[%] - Jumping window[{window_size}] - N{N} - Quantity of windows{count_window}\n\n")
-	# print((f"{'File':<10}"), end="")
-	# for i in range(len(file_tags)):
-	# 	print(f"{file_tags[i]:<10}", end="")
-	# print(f"{'Inconclusive':<10}")
-
-	# for i in range(len(outputMatrix)):
-	# 	print(f"{file_tags[i]:<10}", end="")
-	# 	for j in range(len(outputMatrix[i])):
-	# 		outputMatrix[i][j] = round(get_change_t(outputMatrix[i][j],count_window[i]),2)
-	# 		aux = (f"{outputMatrix[i][j]}")
-	# 		print(f"{aux:<10}", end="")
-	# 	print("\n")
+			window = np.zeros(window_size)
+			if (j + window_size <= len(instants_classification[i])):
+				window = instants_classification[i][j:j+window_size]
+				print(len(window))
+			else:
+				window = instants_classification[i][j:]
+			
+			counts = np.bincount(window)
+			outputMatrix[i][np.argmax(counts)] += 1
+			print(f"window: {(window)} classification: {np.argmax(counts)}")
 
 	for i in range(len(outputMatrix)):
 		for j in range(len(outputMatrix[i])):
