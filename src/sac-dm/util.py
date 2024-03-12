@@ -85,37 +85,35 @@ def windowCompare( window, average, deviation, file_tags ):
 			if(len(auxConclusion) >= (len(window[i])/ 2 )):
 				conclusion[i] = j
 				break
-			
-			#checks if only one of the points contained in the window is classified as failure
-			if(len(auxConclusion) == 1 and auxConclusion[0] != 1):
-				conclusion[i] = j
-				break
 
+		if(conclusion[i] == -1):
 			conclusion[i] = (len(file_tags))
 
 	#check if the 3 axes are in the same condition
 	for i in range(len(file_tags)):
 		auxConclusion = np.where(conclusion == i)[0]
 		if(len(auxConclusion) == len(conclusion)):
-			# print(f"Janela: {auxConclusion} F{i} Iguais")
+			# print(f"Janela: {conclusion} F{i} 3 Iguais")
 			return i
 	
-	auxConclusion = np.where(conclusion > 0)[0]
 
-	#check if at least one axis is outside the normal condition
-	#only one axis outside the normal condition
-	if(len(auxConclusion) == 1):
-		# print(f"Janela: {auxConclusion} F{i} 1 Fora normal")
-		return auxConclusion
-	
-	#more than one axis outside the normal condition but with the same fault condition
-	if(len(auxConclusion) == 2 and conclusion[auxConclusion[0]] == conclusion[auxConclusion[1]]):
-		# print(f"Janela: {auxConclusion} F{i} +1 fora normal")
-		return conclusion[auxConclusion[0]]
-	else:
-		#different failure conditions
-		# print(f"Janela: {auxConclusion} F{i} Diferentes")
-		return len(file_tags)
+	#check if the 2 axes are in the same condition
+	for i in range(len(file_tags)):
+		auxConclusion = np.where(conclusion == i)[0]
+		if(len(auxConclusion) == 2):
+			# print(f"Janela: {conclusion} F{i} 2 Iguais")
+			#Se 2 eixos estiverem saudaveis e outro nao
+			if(conclusion[auxConclusion[0]] == 0):
+				for j in range(len(conclusion)):
+					if(conclusion[j] > 0):
+						return conclusion[j]
+
+			return i
+
+	#inconclusivo
+	# print(f"Janela: {conclusion} F{i} diferentes")
+	return len(file_tags)
+
 
 def saveMatrixInTxt(outputMatrix, average, deviation, title, N, filename, file_tags, header):
 	
