@@ -117,10 +117,15 @@ def windowCompare( window, average, deviation, file_tags ):
 def instantCompare( instant, average, deviation, file_tags):
 
 	conclusion = -1
+	interpolation = 0
 	for i in range(len(file_tags)):
 		if(instant >= (average[i] - deviation[i]) and instant <= (average[i] + deviation[i])):
 			conclusion = i
+			interpolation += 1
 	
+	if(interpolation > 1):
+		conclusion = (len(file_tags) + 1)
+
 	if(conclusion == -1):
 		conclusion = len(file_tags)
 
@@ -129,15 +134,15 @@ def instantCompare( instant, average, deviation, file_tags):
 def instanteClassification(instant, file_tags):
 
 	instant = np.array(instant)
-	#check if the 3 axes are in the same condition
+	#check if the axes are in the same condition
 	for i in range(len(file_tags)):
 		auxConclusion = np.where(instant == i)[0]
 		if(len(auxConclusion) == len(instant)):
-			# print(f"Instante: {instant} F{i} 3 Iguais")
+			# print(f"Instante: {instant} classificado: F{i} Iguais-3")
 			return i
 
 		if(len(auxConclusion) == 2):
-			# print(f"Instante: {instant} F{i} 2 Iguais")
+			# print(f"Instante: {instant} classificado: F{i} Iguais-2")
 			#Se 2 eixos estiverem saudaveis e outro nao
 			if(instant[auxConclusion[0]] == 0):
 				for j in range(len(instant)):
@@ -146,7 +151,26 @@ def instanteClassification(instant, file_tags):
 						return instant[j]
 
 			return i
+	if(len(instant) == 2):
+		healthy = np.where(instant == 0)[0]
+		failure = np.where(instant > 0)[0]
+		if(len(failure) == 2 ):
 
+			# Different failures
+			if(instant[failure[0]] > 1 and instant[failure[0]] < 4 and instant[failure[1]] > 1 and instant[failure[1]] < 4 ):
+				return (len(file_tags))
+			
+			# 1 axis with failure and another inconclusive: classified as failure
+			if(instant[failure[0]] < 4):
+				return (instant[failure[0]])
+			else:
+				return (instant[failure[1]])
+		
+		# 1 axis with failure
+		if(len(failure) == 1):
+			return (instant[failure[0]])
+		
+	# print(f"Instante: {instant} classificado: Inconclusivo")
 	return len(file_tags)
 
 def saveMatrixInTxt(outputMatrix, average, deviation, title, N, filename, file_tags, header):
@@ -381,22 +405,34 @@ def jumpingWindow(dataset, file_tags, title, window_size, N, save):
 		average[i] = average_sac(dataset[i], 0, round(len(dataset[i])/2))
 		deviation[i] = deviation_sac(dataset[i], 0, round(len(dataset[i])/2))
 
+	instants_classification = []
 
-	#Files with the same axis
+	#File
 	for i in range(len(dataset)):
-		#Array of SACs
-		for j in range( round(len(dataset[i])/2), (len(dataset[i])), window_size):
-			conclusion = np.zeros((len(file_tags) + 1))
+		aux_instantes = []
+		#Axes
+		for j in range(round(len(dataset[i])/2), len(dataset[i])):
+			#Instants
+				
+			aux = instantCompare(dataset[i][j], average, deviation, file_tags)
+			if(aux != (len(file_tags) + 1)):
+				aux_instantes.append(aux)
+			# print(f"instant: {dataset[i][j]} file: {i} classification: {aux}")
+		instants_classification.append(np.array(aux_instantes))
+
+	for i in range(len(instants_classification)):
+		for j in range(0,(len(instants_classification[i])), window_size):
 			count_window[i] += 1
-			if (j + window_size <= len(dataset[i])):
-				window = dataset[i][j:j+window_size]
-				conclusion = windowCompareAxis(window, average, deviation, file_tags)
+			window = np.zeros(window_size)
+			if (j + window_size <= len(instants_classification[i])):
+				window = instants_classification[i][j:j+window_size]
 
 			else:
-				window = dataset[i][j:]
-				conclusion = windowCompareAxis(window, average, deviation, file_tags)
+				window = instants_classification[i][j:]
 			
-			outputMatrix[i][np.argmax(conclusion)] += 1
+			counts = np.bincount(window)
+			outputMatrix[i][np.argmax(counts)] += 1
+			# print(f"window: {(window)} file: {i} classification: {np.argmax(counts)}")
 				
 	print(f"Confusion matrix[%] - Jumping Window[{window_size}] - N{N} - Quantity of windows{count_window}\n\n")
 	print((f"{'File':<10}"), end="")
@@ -578,9 +614,12 @@ def jumpingWindowAllAxes(dataset, file_tags, title, window_size, N):
 			conclusion = []
 			#Axes
 			for k in range(3):
-				conclusion.append(instantCompare(dataset[i][k][j], average[k], deviation[k], file_tags))
-
-			instants_files.append(conclusion)
+				aux = instantCompare(dataset[i][k][j], average[k], deviation[k], file_tags)
+				if(aux != (len(file_tags) + 1)):
+					conclusion.append(aux)
+			
+			if(len(conclusion) > 0):
+				instants_files.append(conclusion)
 		
 		instants_gathered.append(instants_files)
 
@@ -588,9 +627,11 @@ def jumpingWindowAllAxes(dataset, file_tags, title, window_size, N):
 		aux_instantes = []
 		for j in range(len(instants_gathered[i])):
 			aux = instanteClassification(instants_gathered[i][j], file_tags)
-			aux_instantes.append(instanteClassification(instants_gathered[i][j], file_tags))
-			# print(f"instant: {instants_gathered[i][j]} file: {i} classification: {aux}")
-		instants_classification.append(np.array(aux_instantes))
+			if(aux != (len(file_tags) + 1)):
+				aux_instantes.append(instanteClassification(instants_gathered[i][j], file_tags))
+			# print(f"instant-sac: {instants_gathered[i][j]} file: {i} classification: {aux}")
+		if(len(aux_instantes) > 0):
+			instants_classification.append(np.array(aux_instantes))
 
 
 	for i in range(len(instants_classification)):
@@ -599,13 +640,13 @@ def jumpingWindowAllAxes(dataset, file_tags, title, window_size, N):
 			window = np.zeros(window_size)
 			if (j + window_size <= len(instants_classification[i])):
 				window = instants_classification[i][j:j+window_size]
-				print(len(window))
+
 			else:
 				window = instants_classification[i][j:]
 			
 			counts = np.bincount(window)
 			outputMatrix[i][np.argmax(counts)] += 1
-			print(f"window: {(window)} classification: {np.argmax(counts)}")
+			# print(f"window: {(window)} file: {i} classification: {np.argmax(counts)}")
 
 	for i in range(len(outputMatrix)):
 		for j in range(len(outputMatrix[i])):

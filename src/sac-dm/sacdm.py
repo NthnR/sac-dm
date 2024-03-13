@@ -312,9 +312,9 @@ def plot_SAC_AM_DM(sac_am_by_axes, sac_am_by_files, sac_dm_by_axes, sac_dm_by_fi
 
 	# plot_compare_windows(sac_am_by_axes, sac_dm_by_axes, file_tags, N)
 
-	plot_heat_all_axes_windows(sac_am_by_files, sac_dm_by_files, file_tags, N, accelerometer=1)
+	plot_heat_all_axes_windows(sac_am_by_files, sac_dm_by_files, file_tags, N, accelerometer=2)
 
-	# plot_heat_axis_window(sac_am_by_axes, sac_dm_by_axes, file_tags, N, accelerometer=1)
+	plot_heat_axis_window(sac_am_by_axes, sac_dm_by_axes, file_tags, N, accelerometer=2)
 	
 	plt.show()
 	return 0
@@ -492,15 +492,15 @@ def plot_SAC_AM_DM_motor_signals():
 # 			"../../files/hexacopter_signals/failure_condition_2/FC2Flt01n1.csv",
 # 			"../../files/hexacopter_signals/failure_condition_3/FC3Flt01n1.csv" ]
 
-# file_paths = [     "../../files/hexacopter_signals/nominal_flight/NFlt01n2.csv",
-# 			"../../files/hexacopter_signals/failure_condition_1/FC1Flt01n2.csv",
-# 			"../../files/hexacopter_signals/failure_condition_2/FC2Flt01n2.csv",
-# 			"../../files/hexacopter_signals/failure_condition_3/FC3Flt01n2.csv" ]
+file_paths = [     "../../files/hexacopter_signals/nominal_flight/NFlt03n2.csv",
+			"../../files/hexacopter_signals/failure_condition_1/FC1Flt03n2.csv",
+			"../../files/hexacopter_signals/failure_condition_2/FC2Flt03n2.csv",
+			"../../files/hexacopter_signals/failure_condition_3/FC3Flt03n2.csv" ]
 
-file_paths = [     "../../files/hexacopter_signals/nominal_flight/NFlt02n3.csv",
-			"../../files/hexacopter_signals/failure_condition_1/FC1Flt02n3.csv",
-			"../../files/hexacopter_signals/failure_condition_2/FC2Flt02n3.csv",
-			"../../files/hexacopter_signals/failure_condition_3/FC3Flt02n3.csv" ]
+# file_paths = [     "../../files/hexacopter_signals/nominal_flight/NFlt01n3.csv",
+# 			"../../files/hexacopter_signals/failure_condition_1/FC1Flt01n3.csv",
+# 			"../../files/hexacopter_signals/failure_condition_2/FC2Flt01n3.csv",
+# 			"../../files/hexacopter_signals/failure_condition_3/FC3Flt01n3.csv" ]
 
 
 file_tags = [ "NF","FC1", "FC2", "FC3"]
@@ -538,7 +538,7 @@ for i in range(len(file_paths)):
 			sac_am_list.append(sac_am_aux)
 			sac_dm_list.append(sac_dm_aux)
 	
-	file_axes.append(file_list)
+	file_axes.append(np.array(file_list))
 	sac_am_by_files.append(sac_am_list)
 	sac_dm_by_files.append(sac_dm_list)
 
