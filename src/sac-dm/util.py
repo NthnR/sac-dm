@@ -41,12 +41,15 @@ def cleanTxtMatrix(N):
 	file1.close()
 
 def get_change_t(current, previous):
-    if current == previous:
-        return 100.0
-    try:
-        return (abs(current)  / previous) * 100.0
-    except ZeroDivisionError:
-        return 0
+	if( current == 0 and previous == 0):
+		return 0
+    
+	if current == previous:
+		return 100.0
+	try:
+		return (abs(current)  / previous) * 100.0
+	except ZeroDivisionError:
+		return 0
 
 def windowCompareAxis( window, average, deviation, file_tags ):
 	conclusion = np.zeros((len(file_tags) + 1))
@@ -147,6 +150,9 @@ def instanteClassification(instant, file_tags):
 			if(instant[auxConclusion[0]] == 0):
 				for j in range(len(instant)):
 					if(instant[j] > 0):
+						#2 eixos saudaveis e outro inconclusivo
+						if(instant[j] == 4):
+							return 0
 
 						return instant[j]
 
@@ -157,7 +163,7 @@ def instanteClassification(instant, file_tags):
 		if(len(failure) == 2 ):
 
 			# Different failures
-			if(instant[failure[0]] > 1 and instant[failure[0]] < 4 and instant[failure[1]] > 1 and instant[failure[1]] < 4 ):
+			if(instant[failure[0]] >= 1 and instant[failure[0]] < 4 and instant[failure[1]] >= 1 and instant[failure[1]] < 4 ):
 				return (len(file_tags))
 			
 			# 1 axis with failure and another inconclusive: classified as failure
@@ -166,6 +172,10 @@ def instanteClassification(instant, file_tags):
 			else:
 				return (instant[failure[1]])
 		
+		# 1 axis inclusive and another one healthy
+		if(len(failure) == 1 and instant[failure[0]] == 4):
+			return (instant[healthy[0]])
+
 		# 1 axis with failure
 		if(len(failure) == 1):
 			return (instant[failure[0]])
@@ -643,10 +653,16 @@ def jumpingWindowAllAxes(dataset, file_tags, title, window_size, N):
 
 			else:
 				window = instants_classification[i][j:]
-			
-			counts = np.bincount(window)
-			outputMatrix[i][np.argmax(counts)] += 1
-			# print(f"window: {(window)} file: {i} classification: {np.argmax(counts)}")
+				
+			values, counts = np.unique(window, return_counts=True)
+
+			#	checks if there is more than one value with the same and greater repetition
+			if(np.count_nonzero(counts == counts[np.argmax(counts)]) > 1):
+				outputMatrix[i][len(file_tags)] += 1
+				# print(f"window: {(window)} file: {i} classification: {len(file_tags)}")
+			else:
+				outputMatrix[i][values[np.argmax(counts)]] += 1
+				# print(f"window: {(window)} file: {i} classification: {values[np.argmax(counts)]}")
 
 	for i in range(len(outputMatrix)):
 		for j in range(len(outputMatrix[i])):
