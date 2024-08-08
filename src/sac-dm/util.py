@@ -6,117 +6,6 @@ import time
 
 from scipy.signal import find_peaks, peak_prominences
 
-def average_sac(dataset, start, end):
-
-	average = np.average(dataset[start:end])
-
-	return average
-
-def deviation_sac(dataset, start, end):
-
-	standard_deviation = np.std(dataset[start:end])
-
-	return standard_deviation
-
-def sampling_sac(dataset, start, end):
-
-	return dataset[start:end]
-
-def cleanTxtSliding(N, window_size):
-	filename = (f"SlidingWindowN{N}Size{window_size}.txt")
-	file1 = open(filename, 'a+')
-	file1.truncate(0)
-	file1.close()
-
-def cleanTxtJumping(N, window_size):
-	filename = (f"JumpingWindowN{N}Size{window_size}.txt")
-	file1 = open(filename, 'a+')
-	file1.truncate(0)
-	file1.close()
-
-def cleanTxtMatrix(N):
-	filename = (f"confusionMatrixHalfTrainingN{N}.txt")
-	file1 = open(filename, 'a+')
-	file1.truncate(0)
-	file1.close()
-
-def get_change_t(current, previous):
-	if( current == 0 and previous == 0):
-		return 0
-    
-	if current == previous:
-		return 100.0
-	try:
-		return (abs(current)  / previous) * 100.0
-	except ZeroDivisionError:
-		return 0
-
-def windowCompareAxis( window, average, deviation, file_tags ):
-	conclusion = np.zeros((len(file_tags) + 1))
-
-	for i in range(len(window)):
-		classificationFound = False
-		for k in range(len(file_tags)):
-			if (window[i] >= (average[k] - deviation[k]) and window[i] <= (average[k] + deviation[k])):
-				conclusion[k] += 1
-				classificationFound = True
-				break
-
-		if(classificationFound == False):
-			conclusion[len(file_tags)] += 1
-	
-	return conclusion
-
-def windowCompare( window, average, deviation, file_tags ):
-
-	conclusion = np.full((len(window)), -1)
-
-	#Axes
-	for i in range(len(window)):
-		#Files
-		for j in range(len(file_tags)):
-
-			result = np.logical_and(window[i] >= (average[i][j] - deviation[i][j]), window[i] <= (average[i][j] + deviation[i][j]))
-			auxConclusion = np.where(result == True)[0]
-			
-			#checks if the entire window is classified with the same tag
-			if(len(auxConclusion) == len(file_tags)):
-				conclusion[i] = j
-				break
-			
-			#checks whether the majority of points contained in the window are classified with the same tag
-			if(len(auxConclusion) >= (len(window[i])/ 2 )):
-				conclusion[i] = j
-				break
-
-		if(conclusion[i] == -1):
-			conclusion[i] = (len(file_tags))
-
-	#check if the 3 axes are in the same condition
-	for i in range(len(file_tags)):
-		auxConclusion = np.where(conclusion == i)[0]
-		if(len(auxConclusion) == len(conclusion)):
-			# print(f"Janela: {conclusion} F{i} 3 Iguais")
-			return i
-	
-
-	#check if the 2 axes are in the same condition
-	for i in range(len(file_tags)):
-		auxConclusion = np.where(conclusion == i)[0]
-		if(len(auxConclusion) == 2):
-			# print(f"Janela: {conclusion} F{i} 2 Iguais")
-			#Se 2 eixos estiverem saudaveis e outro nao
-			if(conclusion[auxConclusion[0]] == 0):
-				for j in range(len(conclusion)):
-					if(conclusion[j] > 0):
-						return conclusion[j]
-
-			return i
-
-	#inconclusivo
-	# print(f"Janela: {conclusion} F{i} diferentes")
-	return len(file_tags)
-
 def instantCompare( instant, average, deviation, file_tags):
 
 	conclusion = -1
@@ -132,9 +21,12 @@ def instantCompare( instant, average, deviation, file_tags):
 	if(conclusion == -1):
 		conclusion = len(file_tags)
 
+	# if return, len(file_tags)/quantity of labels == inconclusive
+	# 			 len(file_tags)/more than the quantity of labels == the point tested is in more than 1 range
+	# 			 in the range of len(file_tags) - 1, then the first classification of the point it his posicion in the list of file_tags
 	return conclusion
 
-def instanteClassification(instant, file_tags):
+def instantsClassification(instant, file_tags):
 
 	instant = np.array(instant)
 	#check if the axes are in the same condition
@@ -183,32 +75,7 @@ def instanteClassification(instant, file_tags):
 	# print(f"Instante: {instant} classificado: Inconclusivo")
 	return len(file_tags)
 
-def saveMatrixInTxt(outputMatrix, average, deviation, title, N, filename, file_tags, header):
-	
-	matrix_file = open(filename, 'a+')
-	matrix_file.write(f"{title} - N{N}\n\n")
-	
-	for i in range(len(outputMatrix)):
-		matrix_file.write((file_tags[i] + ":" + " Average - " + str(round(average[i], 4)) + "\n"))
-		matrix_file.write((file_tags[i] + ":" + " Standard deviation - " + str(round(deviation[i], 4)) + "\n"))
-		matrix_file.write((file_tags[i] + ":" + " Lower limit - " + str(round(average[i] - deviation[i], 4)) + " | " + "Upper limit - " + str(round(average[i] + deviation[i], 4)) +"\n\n"))
-
-	matrix_file.write(header)
-	matrix_file.write((f"{'File':<10}"))
-	for i in range(len(file_tags)):
-		matrix_file.write(f"{file_tags[i]:<10}")
-	matrix_file.write(f"{'Inconclusive':<10}\n")
-
-	for i in range(len(outputMatrix)):
-		matrix_file.write(f"{file_tags[i]:<10}")
-		for j in range(len(outputMatrix[i])):
-			aux = (f"{outputMatrix[i][j]}%")
-			matrix_file.write(f"{aux:<10}")
-		matrix_file.write("\n\n")
-
-	matrix_file.close()
-
-def halfTraining(dataset, title, fig, ax, file_tag):
+def plotEditingHalfTraining(dataset, title, fig, ax, file_tag):
 	
 	plt.ylabel(title) 
 	plt.xlabel('Time (ms)')
@@ -237,7 +104,7 @@ def halfTraining(dataset, title, fig, ax, file_tag):
 	# ax.fill_between(x, average_dataset - deviation_dataset, average_dataset + deviation_dataset, alpha = 0.2, label = (f"Standard Deviation of the first half of the File {file_tag}"))
 	ax.fill_between(x, average_dataset - deviation_dataset, average_dataset + deviation_dataset, alpha = 0.2)
 
-def testing(dataset, title, fig, ax, color):
+def plotTesting(dataset, title, fig, ax, color):
 
 	colors = list(mcolors.CSS4_COLORS) 
 	ax.plot(dataset,color=colors[color], label = title)
@@ -253,9 +120,9 @@ def plotTraining(dataset, title, file_tag):
 	
 	for i in range(len(dataset)):
 
-		halfTraining(dataset[i], title, fig, axs[i],file_tag)
+		plotEditingHalfTraining(dataset[i], title, fig, axs[i],file_tag)
 		testing_data = sampling_sac(dataset[i], round(len(dataset[i])/2), len(dataset[i]) )
-		testing(testing_data, (f"Second half of the file {file_tag}"), fig, axs[i], (11+i))
+		plotTesting(testing_data, (f"Second half of the file {file_tag}"), fig, axs[i], (11+i))
 		axs[i].set_xlim(left = -1)
 		axs[i].set(ylabel = auxT[i])
 		# axs[i].legend(loc = 'upper right')
@@ -271,22 +138,22 @@ def plotSACsInOneFigureWithTraining(dataset, title, file_tag):
 	#Plot the axes on base graphs (Test)
 	#Axes
 	for i in range(len(dataset[0])):
-		halfTraining(dataset[0][i], "", fig, axs[i], file_tag[0])
+		plotEditingHalfTraining(dataset[0][i], "", fig, axs[i], file_tag[0])
 		
 		#Files
 		for j in range(0 ,len(dataset)):
 			testing_data = sampling_sac(dataset[j][i], round(len(dataset[j][i])/2), len(dataset[j][i]) )
 			k = j
 			if(j == 1):
-				k = 2
-			testing(testing_data, (f"{file_tag[j]}"), fig, axs[i], (11+k))
+				k = -10
+			plotTesting(testing_data, (f"{file_tag[j]}"), fig, axs[i], (32+k))
 		
-		axs[i].set_xlim(-1, round(len(dataset[0][i]) * 0.59))
+		axs[i].set_xlim(-1, round(len(dataset[0][i]) * 0.575))
 		axs[i].legend(loc='upper right')
-	
-	axs[0].set(ylabel = (aux[0] + ": x-axis"))
-	axs[1].set(ylabel = (aux[0] + ": y-axis"))
-	axs[2].set(ylabel = (aux[0] + ": z-axis"))	
+
+	axs[0].set(ylabel = ("x-axis"))
+	axs[1].set(ylabel = ("y-axis"))
+	axs[2].set(ylabel = ("z-axis"))	
 
 def plotSACsAxis(dataset, title, file_tag):
 
@@ -296,7 +163,7 @@ def plotSACsAxis(dataset, title, file_tag):
 
 	#Plot the axes on base graphs (Test)
 	for i in range(len(dataset)):
-		testing(dataset[i], (f"File: {file_tag[i]}"), fig, ax, (10+i))
+		plotTesting(dataset[i], (f"File: {file_tag[i]}"), fig, ax, (10+i))
 	
 	ax.legend(loc='lower right')
 
@@ -352,65 +219,67 @@ def confusionMatrix(dataset, file_tags, title, N, save):
 		print(f"{file_tags[i]:<10}{values[0]:<10}{values[1]:<10}{values[2]:<10}{values[3]:<10}{values[4]:<10}")
 
 	if(save == True):
-		filename = (f"confusionMatrixHalfTrainingN{N}.txt")
+		filename = (f"confusionMatrixplotHalfTrainingN{N}.txt")
 		header = (f"Confusion matrix[%] \n\n")
 		saveMatrixInTxt(outputMatrix, average, deviation, title, N, filename, file_tags, header)
 
-def slidingWindow(dataset, file_tags, title, window_size, N, save):
+def slidingWindow(dataset, file_tags, title, window_size, N, save=False):
 
 	average = np.zeros(round(len(dataset[0])/2))
 	deviation = np.zeros((round(len(dataset[0])/2)))
 	count_window = np.zeros((len(dataset)))
 	outputMatrix = np.zeros((len(dataset),len(dataset)+1))
 
-	print((title + "\n\n"))
 	for i in range(len(dataset)):
 		average[i] = average_sac(dataset[i], 0, round(len(dataset[i])/2))
 		deviation[i] = deviation_sac(dataset[i], 0, round(len(dataset[i])/2))
 	
-	#Files with the same axis
+	instants_classification = []
+
+	#File
 	for i in range(len(dataset)):
-		#Array of SACs
-		for j in range( round(len(dataset[i])/2), (len(dataset[i]) - window_size + 1) ):
-			window = dataset[i][j:j+window_size]
-			conclusion = np.zeros((len(file_tags) + 1))
-			conclusion = windowCompareAxis(window, average, deviation, file_tags)
-			
-			if(j == (len(dataset[i]) - window_size)):
-				outputMatrix[i][np.argmax(conclusion)] += 1 * window_size
+		aux_instantes = []
+		#Axes
+		for j in range(round(len(dataset[i])/2), len(dataset[i])):
+			#Instants
+				
+			aux = instantCompare(dataset[i][j], average, deviation, file_tags)
+			if(aux != (len(file_tags) + 1)):
+				aux_instantes.append(aux)
+			# print(f"instant: {dataset[i][j]} file: {i} classification: {aux}")
+		instants_classification.append(np.array(aux_instantes))
+
+	for i in range(len(instants_classification)):
+		for j in range((len(instants_classification[i]) - window_size + 1)):
+			window = np.zeros(window_size)
+			window = instants_classification[i][j:j+window_size]
+			counts = np.bincount(window)
+
+			if(j == (len(window) - 1)):
+				outputMatrix[i][np.argmax(counts)] += 1 * window_size
 				count_window[i] += 1 * window_size
 			else:
-				outputMatrix[i][np.argmax(conclusion)] += 1
+				outputMatrix[i][np.argmax(counts)] += 1
 				count_window[i] += 1
-
-	print(f"Confusion matrix[%] - Sliding window[{window_size}] - N{N} - Quantity of windows{count_window}\n\n")
-	print((f"{'File':<10}"), end="")
-	for i in range(len(file_tags)):
-		print(f"{file_tags[i]:<10}", end="")
-	print(f"{'Inconclusive':<10}")
+			# print(f"window: {(window)} file: {i} classification: {np.argmax(counts)}")
 
 	for i in range(len(outputMatrix)):
-		print(f"{file_tags[i]:<10}", end="")
 		for j in range(len(outputMatrix[i])):
 			outputMatrix[i][j] = round(get_change_t(outputMatrix[i][j],count_window[i]),2)
-			aux = (f"{outputMatrix[i][j]}%")
-			print(f"{aux:<10}", end="")
-		print("\n")
 
 	if(save == True):
 		filename = (f"SlidingWindowN{N}Size{window_size}.txt")
 		header = (f"Confusion matrix[%] - Sliding window[{window_size}] - N{N} - Quantity of windows{count_window}\n\n")
 		saveMatrixInTxt(outputMatrix, average, deviation, title, N, filename, file_tags, header)
 	
-	return outputMatrix
+	return outputMatrix, count_window
 
-def jumpingWindow(dataset, file_tags, title, window_size, N, save):
+def jumpingWindow(dataset, file_tags, title, window_size, N, save=False):
 	average = np.zeros(round(len(dataset[0])/2))
 	deviation = np.zeros((round(len(dataset[0])/2)))
 	count_window = np.zeros((len(dataset)))
 	outputMatrix = np.zeros((len(dataset),len(dataset)+1))
 
-	print((title + "\n\n"))
 	for i in range(len(dataset)):
 		average[i] = average_sac(dataset[i], 0, round(len(dataset[i])/2))
 		deviation[i] = deviation_sac(dataset[i], 0, round(len(dataset[i])/2))
@@ -443,8 +312,21 @@ def jumpingWindow(dataset, file_tags, title, window_size, N, save):
 			counts = np.bincount(window)
 			outputMatrix[i][np.argmax(counts)] += 1
 			# print(f"window: {(window)} file: {i} classification: {np.argmax(counts)}")
-				
-	print(f"Confusion matrix[%] - Jumping Window[{window_size}] - N{N} - Quantity of windows{count_window}\n\n")
+
+	for i in range(len(outputMatrix)):
+		for j in range(len(outputMatrix[i])):
+			outputMatrix[i][j] = round(get_change_t(outputMatrix[i][j],count_window[i]),2)
+
+	if(save == True):
+		filename = (f"JumpingWindowN{N}Size{window_size}.txt")
+		header = (f"Confusion matrix[%] - Jumping Window[{window_size}] - N{N} - Quantity of windows{count_window}\n\n")
+		saveMatrixInTxt(outputMatrix, average, deviation, title, N, filename, file_tags, header)
+	
+	return outputMatrix, count_window
+
+def printAnalysisMatrix(outputMatrix, window_quantity, window_size, analysis_type, N, save=False):
+
+	print(f"Confusion matrix[%] - {analysis_type}[{window_size}] - N{N} - Quantity of windows{window_quantity}\n\n")
 	print((f"{'File':<10}"), end="")
 	for i in range(len(file_tags)):
 		print(f"{file_tags[i]:<10}", end="")
@@ -453,17 +335,14 @@ def jumpingWindow(dataset, file_tags, title, window_size, N, save):
 	for i in range(len(outputMatrix)):
 		print(f"{file_tags[i]:<10}", end="")
 		for j in range(len(outputMatrix[i])):
-			outputMatrix[i][j] = round(get_change_t(outputMatrix[i][j],count_window[i]),2)
 			aux = (f"{outputMatrix[i][j]}%")
 			print(f"{aux:<10}", end="")
 		print("\n")
 
 	if(save == True):
-		filename = (f"JumpingWindowN{N}Size{window_size}.txt")
-		header = (f"Confusion matrix[%] - Jumping Window[{window_size}] - N{N} - Quantity of windows{count_window}\n\n")
+		filename = (f"{analysis_type}N{N}Size{window_size}.txt")
+		header = (f"Confusion matrix[%] - {analysis_type}[{window_size}] - N{N} - Quantity of windows{window_quantity}\n\n")
 		saveMatrixInTxt(outputMatrix, average, deviation, title, N, filename, file_tags, header)
-	
-	return outputMatrix
 
 def plotWindowsComparation(dataset, file_tags, title, window_size, N):
 
@@ -636,9 +515,9 @@ def jumpingWindowAllAxes(dataset, file_tags, title, window_size, N):
 	for i in range(len(instants_gathered)):
 		aux_instantes = []
 		for j in range(len(instants_gathered[i])):
-			aux = instanteClassification(instants_gathered[i][j], file_tags)
+			aux = instantsClassification(instants_gathered[i][j], file_tags)
 			if(aux != (len(file_tags) + 1)):
-				aux_instantes.append(instanteClassification(instants_gathered[i][j], file_tags))
+				aux_instantes.append(instantsClassification(instants_gathered[i][j], file_tags))
 			# print(f"instant-sac: {instants_gathered[i][j]} file: {i} classification: {aux}")
 		if(len(aux_instantes) > 0):
 			instants_classification.append(np.array(aux_instantes))
@@ -668,9 +547,10 @@ def jumpingWindowAllAxes(dataset, file_tags, title, window_size, N):
 		for j in range(len(outputMatrix[i])):
 			outputMatrix[i][j] = round(get_change_t(outputMatrix[i][j],count_window[i]),2)
 
-	return outputMatrix
+	return outputMatrix, count_window
 
 def slidingWindowAllAxes(dataset, file_tags, title, window_size, N):
+
 	average = []
 	deviation = []
 	count_window = np.zeros((len(file_tags)))
@@ -687,59 +567,80 @@ def slidingWindowAllAxes(dataset, file_tags, title, window_size, N):
 		average.append(average_list)
 		deviation.append(deviation_list)
 
-	window = []
-	#Getting all windows
+	instants_gathered = []
+	instants_classification = []
+
 	#Files
 	for i in range(len(dataset)):
-		#Axes
-		window_files = []
-		auxSAC_x = dataset[i][0]
-		auxSAC_y = dataset[i][1]
-		auxSAC_z = dataset[i][2]
-		#windows SAC'S
-		for j in range( round(len(auxSAC_x)/2), (len(auxSAC_x) - window_size + 1) ):
-			window_aux_x = auxSAC_x[j:j+window_size]
-			window_aux_y = auxSAC_y[j:j+window_size]
-			window_aux_z = auxSAC_z[j:j+window_size]
-			window_files.append([window_aux_x,window_aux_y,window_aux_z])
-		
-		window.append(window_files)
+		instants_files = []
 
-	#files
-	for i in range(len(window)):
-		#windows
-		for j in range(len(window[i])):
-			conclusion = windowCompare(window[i][j], average, deviation, file_tags)
-			if(j == (len(window[i]) - 1)):
-				outputMatrix[i][conclusion] += 1 * window_size
+		#SAC'S instants classification
+		for j in range( round(len(dataset[i][0])/2), (len(dataset[i][0]))):
+			conclusion = []
+			#Axes
+			for k in range(3):
+				aux = instantCompare(dataset[i][k][j], average[k], deviation[k], file_tags)
+				if(aux != (len(file_tags) + 1)):
+					conclusion.append(aux)
+			
+			if(len(conclusion) > 0):
+				instants_files.append(conclusion)
+		
+		instants_gathered.append(instants_files)
+
+	for i in range(len(instants_gathered)):
+		aux_instantes = []
+		for j in range(len(instants_gathered[i])):
+			aux = instantsClassification(instants_gathered[i][j], file_tags)
+			if(aux != (len(file_tags) + 1)):
+				aux_instantes.append(instantsClassification(instants_gathered[i][j], file_tags))
+			# print(f"instant-sac: {instants_gathered[i][j]} file: {i} classification: {aux}")
+		if(len(aux_instantes) > 0):
+			instants_classification.append(np.array(aux_instantes))
+
+	for i in range(len(instants_classification)):
+		for j in range((len(instants_classification[i]) - window_size + 1)):
+			window = np.zeros(window_size)
+			window = instants_classification[i][j:j+window_size]
+			counts = np.bincount(window)
+
+			if(j == (len(window) - 1)):
+				outputMatrix[i][np.argmax(counts)] += 1 * window_size
 				count_window[i] += 1 * window_size
 			else:
-				outputMatrix[i][conclusion] += 1
+				outputMatrix[i][np.argmax(counts)] += 1
 				count_window[i] += 1
+			# print(f"window: {(window)} file: {i} classification: {np.argmax(counts)}")
 
-	# print(f"Confusion matrix[%] - Sliding window[{window_size}] - N{N} - Quantity of windows{count_window}\n\n")
-	# print((f"{'File':<10}"), end="")
-	# for i in range(len(file_tags)):
-	# 	print(f"{file_tags[i]:<10}", end="")
-	# print(f"{'Inconclusive':<10}")
+	for i in range(len(instants_classification)):
+		for j in range((len(instants_classification[i]) - window_size + 1)):
+			window = np.zeros(window_size)
+			window = instants_classification[i][j:j+window_size]
 
-	# for i in range(len(outputMatrix)):
-	# 	print(f"{file_tags[i]:<10}", end="")
-	# 	for j in range(len(outputMatrix[i])):
-	# 		outputMatrix[i][j] = round(get_change_t(outputMatrix[i][j],count_window[i]),2)
-	# 		aux = (f"{outputMatrix[i][j]}")
-	# 		print(f"{aux:<10}", end="")
-	# 	print("\n")
+			if(j == (len(window) - 1)):
+				count_window[i] += 1 * window_size
+			else:
+				count_window[i] += 1
+				
+			values, counts = np.unique(window, return_counts=True)
+
+			#	checks if there is more than one value with the same and greater repetition
+			if(np.count_nonzero(counts == counts[np.argmax(counts)]) > 1):
+				outputMatrix[i][len(file_tags)] += 1
+				# print(f"window: {(window)} file: {i} classification: {len(file_tags)}")
+			else:
+				outputMatrix[i][values[np.argmax(counts)]] += 1
+				# print(f"window: {(window)} file: {i} classification: {values[np.argmax(counts)]}")
 
 	for i in range(len(outputMatrix)):
 		for j in range(len(outputMatrix[i])):
 			outputMatrix[i][j] = round(get_change_t(outputMatrix[i][j],count_window[i]),2)
 
-	return outputMatrix
+	return outputMatrix, count_window
 
 def plot_heat_jumpingWindowAllAxes(dataset, file_tags, title, window_size, N):
 
-	outputMatrix = jumpingWindowAllAxes(dataset, file_tags, title, window_size, N)
+	outputMatrix, _ = jumpingWindowAllAxes(dataset, file_tags, title, window_size, N)
 	labels = file_tags + ["Inconclusive"]
 
 	# Min = 0% Max = 100%
@@ -765,7 +666,7 @@ def plot_heat_jumpingWindowAllAxes(dataset, file_tags, title, window_size, N):
 
 def plot_heat_slidingWindowAllAxes(dataset, file_tags, title, window_size, N):
 
-	outputMatrix = slidingWindowAllAxes(dataset, file_tags, title, window_size, N)
+	outputMatrix, _ = slidingWindowAllAxes(dataset, file_tags, title, window_size, N)
 	labels = file_tags + ["Inconclusive"]
 
 	# Min = 0% Max = 100%
@@ -791,9 +692,9 @@ def plot_heat_slidingWindowAllAxes(dataset, file_tags, title, window_size, N):
 
 def plot_heat_jumpingWindowAxis(dataset, file_tags, title, window_size, N):
 
-	outputMatrix_x = jumpingWindow(dataset[0], file_tags, title, window_size, N,save=False)
-	outputMatrix_y = jumpingWindow(dataset[1], file_tags, title, window_size, N,save=False)
-	outputMatrix_z = jumpingWindow(dataset[2], file_tags, title, window_size, N,save=False)
+	outputMatrix_x, _ = jumpingWindow(dataset[0], file_tags, title, window_size, N,save=False)
+	outputMatrix_y, _ = jumpingWindow(dataset[1], file_tags, title, window_size, N,save=False)
+	outputMatrix_z, _ = jumpingWindow(dataset[2], file_tags, title, window_size, N,save=False)
 	labels = file_tags + ["   Inconclusive"]
 
 	# Min = 0% Max = 100%
@@ -845,9 +746,9 @@ def plot_heat_jumpingWindowAxis(dataset, file_tags, title, window_size, N):
 
 def plot_heat_slidingWindowAxis(dataset, file_tags, title, window_size, N):
 
-	outputMatrix_x = slidingWindow(dataset[0], file_tags, title, window_size, N,save=False)
-	outputMatrix_y = slidingWindow(dataset[1], file_tags, title, window_size, N,save=False)
-	outputMatrix_z = slidingWindow(dataset[2], file_tags, title, window_size, N,save=False)
+	outputMatrix_x, _ = slidingWindow(dataset[0], file_tags, title, window_size, N,save=False)
+	outputMatrix_y, _ = slidingWindow(dataset[1], file_tags, title, window_size, N,save=False)
+	outputMatrix_z, _ = slidingWindow(dataset[2], file_tags, title, window_size, N,save=False)
 	labels = file_tags + ["   Inconclusive"]
 
 	# Min = 0% Max = 100%
@@ -993,3 +894,76 @@ def heatmap(data, row_labels, col_labels, ax=None,
 
     return im, cbar
 
+def average_sac(dataset, start, end):
+
+	average = np.average(dataset[start:end])
+
+	return average
+
+def deviation_sac(dataset, start, end):
+
+	standard_deviation = np.std(dataset[start:end])
+
+	return standard_deviation
+
+def sampling_sac(dataset, start, end):
+
+	return dataset[start:end]
+
+def cleanTxtSliding(N, window_size):
+	filename = (f"SlidingWindowN{N}Size{window_size}.txt")
+	file1 = open(filename, 'a+')
+	file1.truncate(0)
+	file1.close()
+
+def cleanTxtJumping(N, window_size):
+	filename = (f"JumpingWindowN{N}Size{window_size}.txt")
+	file1 = open(filename, 'a+')
+	file1.truncate(0)
+	file1.close()
+
+def cleanTxtMatrix(N):
+	filename = (f"confusionMatrixplotHalfTrainingN{N}.txt")
+	file1 = open(filename, 'a+')
+	file1.truncate(0)
+	file1.close()
+
+def get_change_t(current, previous):
+	if( current == 0 and previous == 0):
+		return 0
+    
+	if current == previous:
+		return 100.0
+	try:
+		return (abs(current)  / previous) * 100.0
+	except ZeroDivisionError:
+		return 0
+
+def saveMatrixInTxt(outputMatrix, average, deviation, title, N, filename, file_tags, header):
+	
+	matrix_file = open(filename, 'a+')
+	matrix_file.write(f"{title} - N{N}\n\n")
+	
+	for i in range(len(outputMatrix)):
+		matrix_file.write((file_tags[i] + ":" + " Average - " + str(round(average[i], 4)) + "\n"))
+		matrix_file.write((file_tags[i] + ":" + " Standard deviation - " + str(round(deviation[i], 4)) + "\n"))
+		matrix_file.write((file_tags[i] + ":" + " Lower limit - " + str(round(average[i] - deviation[i], 4)) + " | " + "Upper limit - " + str(round(average[i] + deviation[i], 4)) +"\n\n"))
+
+	matrix_file.write(header)
+	matrix_file.write((f"{'File':<10}"))
+	for i in range(len(file_tags)):
+		matrix_file.write(f"{file_tags[i]:<10}")
+	matrix_file.write(f"{'Inconclusive':<10}\n")
+
+	for i in range(len(outputMatrix)):
+		matrix_file.write(f"{file_tags[i]:<10}")
+		for j in range(len(outputMatrix[i])):
+			aux = (f"{outputMatrix[i][j]}%")
+			matrix_file.write(f"{aux:<10}")
+		matrix_file.write("\n\n")
+
+	matrix_file.close()
+
+def show():
+
+	plt.show()

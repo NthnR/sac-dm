@@ -1,16 +1,6 @@
 # Standard python numerical analysis imports:
 import numpy as np
-from scipy import signal
 from scipy.signal import find_peaks, peak_prominences
-
-#import pandas as pd
-#import peakutils
-
-import matplotlib.pyplot as plt
-import matplotlib.mlab as mlab
-import scipy.io
-
-#import h5py
 
 import sys
 import time
@@ -97,7 +87,6 @@ def plot_confusion_matrix_save_txt(sac_am_by_axes, sac_dm_by_axes, file_tags, N,
 		for i in range(3):
 			util.confusionMatrix(sac_dm_by_axes[i], file_tags, (f"SAC-DM: {auxAxes[i]}"), N, save)
 
-
 def slinding_window_in_txt(sac_am_by_axes, sac_dm_by_axes, file_tags, N, save=False):
 	#Sliding window in a txt file
 	auxAxes = ["x-axis", "y-axis", "z-axis"]
@@ -144,8 +133,7 @@ def plot_heat_all_axes_windows(sac_am_by_files, sac_dm_by_files, file_tags, N, a
 def plot_heat_axis_window(sac_am_by_axes, sac_dm_by_axes, file_tags, N, accelerometer):
 	#Heatmaps of one axis window
 	util.plot_heat_jumpingWindowAxis(sac_am_by_axes, file_tags, (f"Accelerometer {accelerometer}: "), int(sys.argv[2]), N)
-	util.plot_heat_slidingWindowAxis(sac_am_by_axes, file_tags, (f"Accelerometer {accelerometer}: "), int(sys.argv[2]), N)
-
+	# util.plot_heat_slidingWindowAxis(sac_am_by_axes, file_tags, (f"Accelerometer {accelerometer}: "), int(sys.argv[2]), N)
 
 def relocateN(files, file_columns, file_paths, N):
 
@@ -312,11 +300,11 @@ def plot_SAC_AM_DM(sac_am_by_axes, sac_am_by_files, sac_dm_by_axes, sac_dm_by_fi
 
 	# plot_compare_windows(sac_am_by_axes, sac_dm_by_axes, file_tags, N)
 
-	plot_heat_all_axes_windows(sac_am_by_files, sac_dm_by_files, file_tags, N, accelerometer=2)
+	# plot_heat_all_axes_windows(sac_am_by_files, sac_dm_by_files, file_tags, N, accelerometer=3)
 
-	plot_heat_axis_window(sac_am_by_axes, sac_dm_by_axes, file_tags, N, accelerometer=2)
+	# plot_heat_axis_window(sac_am_by_axes, sac_dm_by_axes, file_tags, N, accelerometer=2)
 	
-	plt.show()
+	util.show()
 	return 0
 
 def plot_SAC_AM_DM_motor_signals():
@@ -482,25 +470,25 @@ def plot_SAC_AM_DM_motor_signals():
 	# util.taxa_de_aquisicao(C10_t, "C10")
 	# util.taxa_de_aquisicao(C20_t, "C20")
 
-	plt.show()
+	util.show()
 	return 0
 
 #********* Main ********
 
-# file_paths = [     "../../files/hexacopter_signals/nominal_flight/NFlt01n1.csv",
-# 			"../../files/hexacopter_signals/failure_condition_1/FC1Flt01n1.csv",
-# 			"../../files/hexacopter_signals/failure_condition_2/FC2Flt01n1.csv",
-# 			"../../files/hexacopter_signals/failure_condition_3/FC3Flt01n1.csv" ]
+file_paths = [     "../../files/hexacopter_signals/nominal_flight/NFlt01n1.csv",
+			"../../files/hexacopter_signals/failure_condition_1/FC1Flt01n1.csv",
+			"../../files/hexacopter_signals/failure_condition_2/FC2Flt01n1.csv",
+			"../../files/hexacopter_signals/failure_condition_3/FC3Flt01n1.csv" ]
 
-file_paths = [     "../../files/hexacopter_signals/nominal_flight/NFlt03n2.csv",
-			"../../files/hexacopter_signals/failure_condition_1/FC1Flt03n2.csv",
-			"../../files/hexacopter_signals/failure_condition_2/FC2Flt03n2.csv",
-			"../../files/hexacopter_signals/failure_condition_3/FC3Flt03n2.csv" ]
+# file_paths = [     "../../files/hexacopter_signals/nominal_flight/NFlt04n2.csv",
+# 			"../../files/hexacopter_signals/failure_condition_1/FC1Flt04n2.csv",
+# 			"../../files/hexacopter_signals/failure_condition_2/FC2Flt04n2.csv",
+# 			"../../files/hexacopter_signals/failure_condition_3/FC3Flt04n2.csv" ]
 
-# file_paths = [     "../../files/hexacopter_signals/nominal_flight/NFlt01n3.csv",
-# 			"../../files/hexacopter_signals/failure_condition_1/FC1Flt01n3.csv",
-# 			"../../files/hexacopter_signals/failure_condition_2/FC2Flt01n3.csv",
-# 			"../../files/hexacopter_signals/failure_condition_3/FC3Flt01n3.csv" ]
+# file_paths = [     "../../files/hexacopter_signals/nominal_flight/NFlt05n3.csv",
+# 			"../../files/hexacopter_signals/failure_condition_1/FC1Flt05n3.csv",
+# 			"../../files/hexacopter_signals/failure_condition_2/FC2Flt05n3.csv",
+# 			"../../files/hexacopter_signals/failure_condition_3/FC3Flt05n3.csv" ]
 
 
 file_tags = [ "NF","FC1", "FC2", "FC3"]
