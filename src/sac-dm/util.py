@@ -324,7 +324,7 @@ def jumpingWindow(dataset, file_tags, title, window_size, N, save=False):
 	
 	return outputMatrix, count_window
 
-def printAnalysisMatrix(outputMatrix, window_quantity, window_size, analysis_type, N, save=False):
+def printAnalysisMatrix(outputMatrix, window_quantity, window_size, analysis_type,file_tags, average, deviation, title, N, save=False):
 
 	print(f"Confusion matrix[%] - {analysis_type}[{window_size}] - N{N} - Quantity of windows{window_quantity}\n\n")
 	print((f"{'File':<10}"), end="")
