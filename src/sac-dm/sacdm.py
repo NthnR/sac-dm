@@ -543,7 +543,8 @@ for i in range(3):
 	sac_dm_by_axes.append(sac_dm_aux)
 
 
-plot_SAC_AM_DM(sac_am_by_axes, sac_am_by_files, sac_dm_by_axes, sac_dm_by_files, file_tags, N)
+util.testingInstants([[4,4,4,], [4,4,4,], [4,4,4,],[6,6,6],[6,6,6],[6,6,6] ],[[1,1,1], [6,6,6]], [[1.7, 1.7, 1.7], [1,1,1]], 3)
+# plot_SAC_AM_DM(sac_am_by_axes, sac_am_by_files, sac_dm_by_axes, sac_dm_by_files, file_tags, N)
 
 # search_optimal(files,file_columns, file_paths, file_tags)
 # plot_SAC_AM_DM_motor_signals()

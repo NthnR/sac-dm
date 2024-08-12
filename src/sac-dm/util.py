@@ -6,36 +6,87 @@ import time
 
 from scipy.signal import find_peaks, peak_prominences
 
-def testingInstants( instants, average, deviation):
+def testingInstants( instants, average, deviation, window_size, file_tags=np.zeros(1)):
 
-	try: 
-		file_tags = np.zeros(len(average))
-	except:
-		file_tags = np.zeros(0)
-	
-	conclusion_points = []
+	average = np.array(average)
+	deviation = np.array(deviation)
+	metrics_shape = average.shape
+
+	if( len(metrics_shape) > 1 and len(file_tags) == 1):
+		#If the metrics has more than 1 dimension, then the test has more than 1 reference
+		file_tags = np.zeros(metrics_shape[0])
+
+
+	#If the metrics has more than 1 dimension, then the metrics is organized by axis | average[ quantity of axis ][ quantity of references ][ value ]
+	average = np.transpose(average)
+	deviation = np.transpose(deviation)
+
+	instants_classification = []
 
 	for i in range(len(instants)):
 		aux_conclusion = []
 
 		#classification of singular points - Axis by Axis
 		for j in range(len(instants[0])):
-			aux = instantCompare(instants[i][j], average, deviation, file_tags)
-			aux_conclusion.append(aux)
+			aux = instantCompare(instants[i][j], average[j], deviation[j], file_tags)
+			#saves only classifications where there are no interpolations
+			if(aux != (len(file_tags) + 1)):
+					aux_conclusion.append(aux)
 
-		conclusion_points.append(instantsClassification(aux_conclusion, file_tags))
+		#classification of all axes
+		if(len(aux_conclusion) > 0):
+				instants_classification.append(instantsClassification(aux_conclusion, file_tags))
 
+	count_window = 0
+	result = np.zeros(len(file_tags) + 1)
+	# Window classification
+	for i in range(0,(len(instants_classification)), window_size):
+
+		count_window += 1
+		window = np.zeros(window_size)
+		if (j + window_size <= len(instants_classification)):
+			window = instants_classification[i:i+window_size]
+
+		else:
+			window = instants_classification[i:]
+			
+		values, counts = np.unique(window, return_counts=True)
+
+		#	checks if there is more than one value with the same and greater repetition
+		if(np.count_nonzero(counts == counts[np.argmax(counts)]) > 1):
+			result[len(file_tags)] += 1
+			# print(f"window: {(window)}  classification: {len(file_tags)}")
+		else:
+			result[values[np.argmax(counts)]] += 1
+			# print(f"window: {(window)}  classification: {values[np.argmax(counts)]}")
+
+	# checks whether the classification resulted in a tie
+	max_ocorrence = result.max()
+	indices = np.where(result == max_ocorrence)[0]
+
+	if(len(indices) == 1):
+		print(np.argmax(result))
+	else:
+		print(result[indices])
+		
 	#retornar lista com log de onde os erros foram encontrados
 
 def instantCompare( instant, average, deviation, file_tags):
 
 	conclusion = -1
 	interpolation = 0
-	for i in range(len(average)):
-		if(instant >= (average[i] - deviation[i]) and instant <= (average[i] + deviation[i])):
-			conclusion = i
-			interpolation += 1
-	
+
+	try:
+		for i in range(len(average)):
+			if(instant >= (average[i] - deviation[i]) and instant <= (average[i] + deviation[i])):
+				conclusion = i
+				interpolation += 1
+
+	except:
+		if(instant >= (average - deviation) and instant <= (average + deviation)):
+			conclusion = 0
+
+		
 	if(interpolation > 1):
 		conclusion = (len(file_tags) + 1)
 
