@@ -6,11 +6,32 @@ import time
 
 from scipy.signal import find_peaks, peak_prominences
 
+def testingInstants( instants, average, deviation):
+
+	try: 
+		file_tags = np.zeros(len(average))
+	except:
+		file_tags = np.zeros(0)
+	
+	conclusion_points = []
+
+	for i in range(len(instants)):
+		aux_conclusion = []
+
+		#classification of singular points - Axis by Axis
+		for j in range(len(instants[0])):
+			aux = instantCompare(instants[i][j], average, deviation, file_tags)
+			aux_conclusion.append(aux)
+
+		conclusion_points.append(instantsClassification(aux_conclusion, file_tags))
+
+	#retornar lista com log de onde os erros foram encontrados
+
 def instantCompare( instant, average, deviation, file_tags):
 
 	conclusion = -1
 	interpolation = 0
-	for i in range(len(file_tags)):
+	for i in range(len(average)):
 		if(instant >= (average[i] - deviation[i]) and instant <= (average[i] + deviation[i])):
 			conclusion = i
 			interpolation += 1
