@@ -11,6 +11,7 @@ def testingInstants( instants, average, deviation, window_size, file_tags=np.zer
 	average = np.array(average)
 	deviation = np.array(deviation)
 	metrics_shape = average.shape
+	log = "" 
 
 	if( len(metrics_shape) > 1 and len(file_tags) == 1):
 		#If the metrics has more than 1 dimension, then the test has more than 1 reference
@@ -32,6 +33,10 @@ def testingInstants( instants, average, deviation, window_size, file_tags=np.zer
 			#saves only classifications where there are no interpolations
 			if(aux != (len(file_tags) + 1)):
 					aux_conclusion.append(aux)
+			
+			#a failure was detected, updating log
+			if(aux > 0 and aux < (len(file_tags) + 1)):
+				log += (f"Failure in the instante [{i}] on axis [{j}], classified as the failure [{aux}]\n")
 
 		#classification of all axes
 		if(len(aux_conclusion) > 0):
@@ -56,9 +61,13 @@ def testingInstants( instants, average, deviation, window_size, file_tags=np.zer
 		if(np.count_nonzero(counts == counts[np.argmax(counts)]) > 1):
 			result[len(file_tags)] += 1
 			# print(f"window: {(window)}  classification: {len(file_tags)}")
+			log += (f"Window classification failure[{window}]: due to tie in simple majority vote\n")
 		else:
 			result[values[np.argmax(counts)]] += 1
 			# print(f"window: {(window)}  classification: {values[np.argmax(counts)]}")
+			#a failure was detected, updating log
+			if(values[np.argmax(counts)] > 0):
+				log += (f"Window classified as failure[{window}]\n")
 
 	# checks whether the classification resulted in a tie
 	max_ocorrence = result.max()
@@ -67,9 +76,12 @@ def testingInstants( instants, average, deviation, window_size, file_tags=np.zer
 	if(len(indices) == 1):
 		print(np.argmax(result))
 	else:
+		# tie
 		print(result[indices])
-		
-	#retornar lista com log de onde os erros foram encontrados
+	
+
+	print(log)
+	
 
 def instantCompare( instant, average, deviation, file_tags):
 
