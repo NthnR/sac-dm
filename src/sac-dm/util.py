@@ -6,17 +6,10 @@ import time
 
 from scipy.signal import find_peaks, peak_prominences
 
-def testingInstants( instants, average, deviation, window_size, file_tags=np.zeros(1)):
+def testingInstants( instants, average, deviation):
 
 	average = np.array(average)
 	deviation = np.array(deviation)
-	metrics_shape = average.shape
-	log = "" 
-
-	if( len(metrics_shape) > 1 and len(file_tags) == 1):
-		#If the metrics has more than 1 dimension, then the test has more than 1 reference
-		file_tags = np.zeros(metrics_shape[0])
-
 
 	#If the metrics has more than 1 dimension, then the metrics is organized by axis | average[ quantity of axis ][ quantity of references ][ value ]
 	average = np.transpose(average)
@@ -34,53 +27,12 @@ def testingInstants( instants, average, deviation, window_size, file_tags=np.zer
 			if(aux != (len(file_tags) + 1)):
 					aux_conclusion.append(aux)
 			
-			#a failure was detected, updating log
-			if(aux > 0 and aux < (len(file_tags) + 1)):
-				log += (f"Failure in the instante [{i}] on axis [{j}], classified as the failure [{aux}]\n")
-
+		#transformar em tupla
 		#classification of all axes
 		if(len(aux_conclusion) > 0):
 				instants_classification.append(instantsClassification(aux_conclusion, file_tags))
 
-	count_window = 0
-	result = np.zeros(len(file_tags) + 1)
-	# Window classification
-	for i in range(0,(len(instants_classification)), window_size):
 
-		count_window += 1
-		window = np.zeros(window_size)
-		if (j + window_size <= len(instants_classification)):
-			window = instants_classification[i:i+window_size]
-
-		else:
-			window = instants_classification[i:]
-			
-		values, counts = np.unique(window, return_counts=True)
-
-		#	checks if there is more than one value with the same and greater repetition
-		if(np.count_nonzero(counts == counts[np.argmax(counts)]) > 1):
-			result[len(file_tags)] += 1
-			# print(f"window: {(window)}  classification: {len(file_tags)}")
-			log += (f"Window classification failure[{window}]: due to tie in simple majority vote\n")
-		else:
-			result[values[np.argmax(counts)]] += 1
-			# print(f"window: {(window)}  classification: {values[np.argmax(counts)]}")
-			#a failure was detected, updating log
-			if(values[np.argmax(counts)] > 0):
-				log += (f"Window classified as failure[{window}]\n")
-
-	# checks whether the classification resulted in a tie
-	max_ocorrence = result.max()
-	indices = np.where(result == max_ocorrence)[0]
-
-	if(len(indices) == 1):
-		print(np.argmax(result))
-	else:
-		# tie
-		print(result[indices])
-	
-
-	print(log)
 	
 
 def instantCompare( instant, average, deviation, file_tags):
