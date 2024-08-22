@@ -6,16 +6,32 @@ import time
 
 from scipy.signal import find_peaks, peak_prominences
 
-def testingInstants( instants, average, deviation):
+def testingInstants( instants, average, deviation, file_tags=np.zeros(1)):
+	"""
+	This function receives 4 parameters with the objective of classifying instants coming from <function sac_am>, 
+	using the average and standard deviation of the corresponding axis.
 
+	:param instants: List that contains instant, which are composed of 3 floating values coming from <function sac_am>
+	:param average: List containing the averages that will be used in the test
+	:param deviation: List containing the standard deviations that will be used in the test
+	:param file_tags: List that has the size of the labels for classification, not necessarily being filled with the labels themselves.
+	
+	:return: Returns a list of tuples that contain the classification of each instant contained in <param instants>.
+		Note: To understand the values contained in the tuples, see the return of <function instantCompare>
+	"""
 	average = np.array(average)
 	deviation = np.array(deviation)
+	metrics_shape = average.shape
+
+	if( len(metrics_shape) > 1 and len(file_tags) == 1):
+		#If the metrics has more than 1 dimension, then the test has more than 1 reference
+		file_tags = np.zeros(metrics_shape[0])
 
 	#If the metrics has more than 1 dimension, then the metrics is organized by axis | average[ quantity of axis ][ quantity of references ][ value ]
 	average = np.transpose(average)
 	deviation = np.transpose(deviation)
 
-	instants_classification = []
+	instants_tuple = []
 
 	for i in range(len(instants)):
 		aux_conclusion = []
@@ -24,19 +40,31 @@ def testingInstants( instants, average, deviation):
 		for j in range(len(instants[0])):
 			aux = instantCompare(instants[i][j], average[j], deviation[j], file_tags)
 			#saves only classifications where there are no interpolations
-			if(aux != (len(file_tags) + 1)):
-					aux_conclusion.append(aux)
+			# if(aux != (len(file_tags) + 1)):
+			aux_conclusion.append(aux)
 			
-		#transformar em tupla
-		#classification of all axes
+		#classification of all axes points
 		if(len(aux_conclusion) > 0):
-				instants_classification.append(instantsClassification(aux_conclusion, file_tags))
+				instants_tuple.append(tuple(aux_conclusion[instant] for instant in range(len(aux_conclusion))))
 
-
+	print(instants_tuple)
 	
 
 def instantCompare( instant, average, deviation, file_tags):
+	"""
+	This function receives 4 parameters with the objective of classifying the point X, Y or Z, 
+	using the average and standard deviation of the corresponding axis.
 
+	:param instant: Floating point value
+	:param average: List containing the averages that will be used in the test
+	:param deviation: List containing the standard deviations that will be used in the test
+	:param file_tags: List that has the size of the labels for classification, not necessarily being filled with the labels themselves.
+	
+	:return: Returns an integer value that represents the classification of the tested point, which can take the following values:
+		from 0 to the size of <param file_tags> - 1, represents that the point was classified with the corresponding label.
+		Size of <param file_tags>, represents that the point is not in the test metrics range.
+		Size of <param file_tags> + 1, represents that the point is in the range of more than one test metric.
+	"""
 	conclusion = -1
 	interpolation = 0
 
@@ -49,7 +77,6 @@ def instantCompare( instant, average, deviation, file_tags):
 	except:
 		if(instant >= (average - deviation) and instant <= (average + deviation)):
 			conclusion = 0
-
 		
 	if(interpolation > 1):
 		conclusion = (len(file_tags) + 1)
@@ -57,28 +84,34 @@ def instantCompare( instant, average, deviation, file_tags):
 	if(conclusion == -1):
 		conclusion = len(file_tags)
 
-	# if return, len(file_tags)/quantity of labels == inconclusive
-	# 			 len(file_tags)/more than the quantity of labels == the point tested is in more than 1 range
-	# 			 in the range of len(file_tags) - 1, then the first classification of the point it his posicion in the list of file_tags
 	return conclusion
 
 def instantsClassification(instant, file_tags):
+	"""
+	This function receives 2 parameters with the objective of unifying the classifications of the axis X, Y or Z, 
+	into just one classification.
+
+	:param instant: List that contains 3 integer values, which correspond to the return of the <function instantCompare> for an instant, that is, a point in X, Y and Z at the same moment.
+	:param file_tags: List that has the size of the labels for classification, not necessarily being filled with the labels themselves.
+	
+	:param return: Returns an integer value that corresponds to the weighting of the classification of the points contained at an instant.
+	"""
 
 	instant = np.array(instant)
 	#check if the axes are in the same condition
 	for i in range(len(file_tags)):
 		auxConclusion = np.where(instant == i)[0]
 		if(len(auxConclusion) == len(instant)):
-			# print(f"Instante: {instant} classificado: F{i} Iguais-3")
+			# print(f"Instant: {instant} classified: F{i} 3-Equals")
 			return i
 
 		if(len(auxConclusion) == 2):
-			# print(f"Instante: {instant} classificado: F{i} Iguais-2")
-			#Se 2 eixos estiverem saudaveis e outro nao
+			# print(f"Instant: {instant} classified: F{i} 2-Equals")
+			#If 2 axes are healthy and the other is not
 			if(instant[auxConclusion[0]] == 0):
 				for j in range(len(instant)):
 					if(instant[j] > 0):
-						#2 eixos saudaveis e outro inconclusivo
+						#2 healthy axes and another inconclusive
 						if(instant[j] == 4):
 							return 0
 
@@ -108,7 +141,7 @@ def instantsClassification(instant, file_tags):
 		if(len(failure) == 1):
 			return (instant[failure[0]])
 		
-	# print(f"Instante: {instant} classificado: Inconclusivo")
+	# print(f"Instant: {instant} classified: Inconclusivo")
 	return len(file_tags)
 
 def plotEditingHalfTraining(dataset, title, fig, ax, file_tag):
