@@ -47,7 +47,7 @@ def testingInstants( instants, average, deviation, file_tags=np.zeros(1)):
 		if(len(aux_conclusion) > 0):
 				instants_tuple.append(tuple(aux_conclusion[instant] for instant in range(len(aux_conclusion))))
 
-	print(instants_tuple)
+	return (instants_tuple)
 	
 
 def instantCompare( instant, average, deviation, file_tags):
@@ -143,6 +143,78 @@ def instantsClassification(instant, file_tags):
 		
 	# print(f"Instant: {instant} classified: Inconclusivo")
 	return len(file_tags)
+
+def windowingClassification(axes_classification, window_size, file_tags):
+
+	"""
+	This function receives 3 parameters and aims to partition (separate into windows) the list 
+	axes_classification, and from that build a new classification list through simple voting.
+
+	:param axes_classification: List that contains the axes classification, which correspond to the return of the <function instantsClassification>.
+	:param window_size: Value that corresponds to the interval in which the windowing will be performed.
+	:param file_tags: List that has the labels for classification.
+	
+	:param return: List that contains the classification of the data.
+	"""
+
+	window_classification = []
+	count_window = 0
+
+	for j in range(0,(len(axes_classification)), window_size):
+		window = np.zeros(window_size)
+		count_window += 1
+		if (j + window_size <= len(axes_classification)):
+			window = axes_classification[j:j+window_size]
+		else:
+			window = axes_classification[j:]
+		
+		values, counts = np.unique(window, return_counts=True)
+
+		#	checks if there is more than one value with the same and greater repetition
+		if(np.count_nonzero(counts == counts[np.argmax(counts)]) > 1):
+			window_classification.append(len(file_tags))
+			# print(f"window: {(window)} file: {i} classification: {len(file_tags)}")
+		else:
+			window_classification.append(values[np.argmax(counts)])
+			# print(f"window: {(window)} file: {i} classification: {values[np.argmax(counts)]}")
+
+	return window_classification
+
+def classification(sac_instants, average, deviation, window_size, file_tags):
+
+	"""
+	This function receives 5 parameters with the objective of classifying the data.
+
+	:param instant: List that contains instant, which each position are composed of 3 floating values coming from <function sac_am>
+	:param average: List containing the averages that will be used in the test
+	:param deviation: List containing the standard deviations that will be used in the test
+	:param window_size: Value that corresponds to the interval in which the windowing will be performed
+	:param file_tags: List of the labels for classification
+	
+	:return: Returns the label of the classification data.
+	"""
+	
+	sac_classification = testingInstants(sac_instants, average, deviation, file_tags)
+
+	axes_classification = []
+
+	for i in range(len(sac_classification)):
+		axes_classification.append(instantsClassification(sac_classification[i], file_tags))
+
+	window_classification = windowingClassification(axes_classification, window_size, file_tags)
+
+	values, counts = np.unique(window_classification, return_counts=True)
+
+	#	checks if there is more than one value with the same and greater repetition
+	#	simple voting to classify the data
+	if(np.count_nonzero(counts == counts[np.argmax(counts)]) > 1):
+		# return len(file_tags)
+		return "inconclusivo"
+	else:
+		return file_tags[values[np.argmax(counts)]]
+
+
+
 
 def plotEditingHalfTraining(dataset, title, fig, ax, file_tag):
 	

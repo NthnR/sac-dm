@@ -496,6 +496,7 @@ file_tags = [ "NF","FC1", "FC2", "FC3"]
 file_columns = ['x','y','z','t']
 
 N = int(sys.argv[1])
+window_size = int(sys.argv[2])
 files = []
 file_axes = []
 sac_am_by_files = []
@@ -543,8 +544,6 @@ for i in range(3):
 	sac_dm_by_axes.append(sac_dm_aux)
 
 
-util.testingInstants([[4,2,4,], [2,4,4,], [4,4,2,],[2,2,2],[6,6,6],[6,6,6], [8, 8, 8]],[[6,6,6]], [[2,2,2]])
 # plot_SAC_AM_DM(sac_am_by_axes, sac_am_by_files, sac_dm_by_axes, sac_dm_by_files, file_tags, N)
-
 # search_optimal(files,file_columns, file_paths, file_tags)
 # plot_SAC_AM_DM_motor_signals()
