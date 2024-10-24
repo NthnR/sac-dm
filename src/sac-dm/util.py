@@ -6,43 +6,112 @@ import time
 
 from scipy.signal import find_peaks, peak_prominences
 
-def instantCompare( instant, average, deviation, file_tags):
+def testingInstants( instants, average, deviation, file_tags=np.zeros(1)):
+	"""
+	This function receives 4 parameters with the objective of classifying instants coming from <function sac_am>, 
+	using the average and standard deviation of the corresponding axis.
 
+	:param instants: List that contains instant, which are composed of 3 floating values coming from <function sac_am>
+	:param average: List containing the averages that will be used in the test
+	:param deviation: List containing the standard deviations that will be used in the test
+	:param file_tags: List that has the size of the labels for classification, not necessarily being filled with the labels themselves.
+	
+	:return: Returns a list of tuples that contain the classification of each instant contained in <param instants>.
+		Note: To understand the values contained in the tuples, see the return of <function instantCompare>
+	"""
+	average = np.array(average)
+	deviation = np.array(deviation)
+	metrics_shape = average.shape
+
+	if( len(metrics_shape) > 1 and len(file_tags) == 1):
+		#If the metrics has more than 1 dimension, then the test has more than 1 reference
+		file_tags = np.zeros(metrics_shape[0])
+
+	#If the metrics has more than 1 dimension, then the metrics is organized by axis | average[ quantity of axis ][ quantity of references ][ value ]
+	average = np.transpose(average)
+	deviation = np.transpose(deviation)
+
+	instants_tuple = []
+
+	for i in range(len(instants)):
+		aux_conclusion = []
+
+		#classification of singular points - Axis by Axis
+		for j in range(len(instants[0])):
+			aux = instantCompare(instants[i][j], average[j], deviation[j], file_tags)
+			#saves only classifications where there are no interpolations
+			# if(aux != (len(file_tags) + 1)):
+			aux_conclusion.append(aux)
+			
+		#classification of all axes points
+		if(len(aux_conclusion) > 0):
+				instants_tuple.append(tuple(aux_conclusion[instant] for instant in range(len(aux_conclusion))))
+
+	return (instants_tuple)
+	
+
+def instantCompare( instant, average, deviation, file_tags):
+	"""
+	This function receives 4 parameters with the objective of classifying the point X, Y or Z, 
+	using the average and standard deviation of the corresponding axis.
+
+	:param instant: Floating point value
+	:param average: List containing the averages that will be used in the test
+	:param deviation: List containing the standard deviations that will be used in the test
+	:param file_tags: List that has the size of the labels for classification, not necessarily being filled with the labels themselves.
+	
+	:return: Returns an integer value that represents the classification of the tested point, which can take the following values:
+		from 0 to the size of <param file_tags> - 1, represents that the point was classified with the corresponding label.
+		Size of <param file_tags>, represents that the point is not in the test metrics range.
+		Size of <param file_tags> + 1, represents that the point is in the range of more than one test metric.
+	"""
 	conclusion = -1
 	interpolation = 0
-	for i in range(len(file_tags)):
-		if(instant >= (average[i] - deviation[i]) and instant <= (average[i] + deviation[i])):
-			conclusion = i
-			interpolation += 1
-	
+
+	try:
+		for i in range(len(average)):
+			if(instant >= (average[i] - deviation[i]) and instant <= (average[i] + deviation[i])):
+				conclusion = i
+				interpolation += 1
+
+	except:
+		if(instant >= (average - deviation) and instant <= (average + deviation)):
+			conclusion = 0
+		
 	if(interpolation > 1):
 		conclusion = (len(file_tags) + 1)
 
 	if(conclusion == -1):
 		conclusion = len(file_tags)
 
-	# if return, len(file_tags)/quantity of labels == inconclusive
-	# 			 len(file_tags)/more than the quantity of labels == the point tested is in more than 1 range
-	# 			 in the range of len(file_tags) - 1, then the first classification of the point it his posicion in the list of file_tags
 	return conclusion
 
 def instantsClassification(instant, file_tags):
+	"""
+	This function receives 2 parameters with the objective of unifying the classifications of the axis X, Y or Z, 
+	into just one classification.
+
+	:param instant: List that contains 3 integer values, which correspond to the return of the <function instantCompare> for an instant, that is, a point in X, Y and Z at the same moment.
+	:param file_tags: List that has the size of the labels for classification, not necessarily being filled with the labels themselves.
+	
+	:param return: Returns an integer value that corresponds to the weighting of the classification of the points contained at an instant.
+	"""
 
 	instant = np.array(instant)
 	#check if the axes are in the same condition
 	for i in range(len(file_tags)):
 		auxConclusion = np.where(instant == i)[0]
 		if(len(auxConclusion) == len(instant)):
-			# print(f"Instante: {instant} classificado: F{i} Iguais-3")
+			# print(f"Instant: {instant} classified: F{i} 3-Equals")
 			return i
 
 		if(len(auxConclusion) == 2):
-			# print(f"Instante: {instant} classificado: F{i} Iguais-2")
-			#Se 2 eixos estiverem saudaveis e outro nao
+			# print(f"Instant: {instant} classified: F{i} 2-Equals")
+			#If 2 axes are healthy and the other is not
 			if(instant[auxConclusion[0]] == 0):
 				for j in range(len(instant)):
 					if(instant[j] > 0):
-						#2 eixos saudaveis e outro inconclusivo
+						#2 healthy axes and another inconclusive
 						if(instant[j] == 4):
 							return 0
 
@@ -72,8 +141,80 @@ def instantsClassification(instant, file_tags):
 		if(len(failure) == 1):
 			return (instant[failure[0]])
 		
-	# print(f"Instante: {instant} classificado: Inconclusivo")
+	# print(f"Instant: {instant} classified: Inconclusivo")
 	return len(file_tags)
+
+def windowingClassification(axes_classification, window_size, file_tags):
+
+	"""
+	This function receives 3 parameters and aims to partition (separate into windows) the list 
+	axes_classification, and from that build a new classification list through simple voting.
+
+	:param axes_classification: List that contains the axes classification, which correspond to the return of the <function instantsClassification>.
+	:param window_size: Value that corresponds to the interval in which the windowing will be performed.
+	:param file_tags: List that has the labels for classification.
+	
+	:param return: List that contains the classification of the data.
+	"""
+
+	window_classification = []
+	count_window = 0
+
+	for j in range(0,(len(axes_classification)), window_size):
+		window = np.zeros(window_size)
+		count_window += 1
+		if (j + window_size <= len(axes_classification)):
+			window = axes_classification[j:j+window_size]
+		else:
+			window = axes_classification[j:]
+		
+		values, counts = np.unique(window, return_counts=True)
+
+		#	checks if there is more than one value with the same and greater repetition
+		if(np.count_nonzero(counts == counts[np.argmax(counts)]) > 1):
+			window_classification.append(len(file_tags))
+			# print(f"window: {(window)} file: {i} classification: {len(file_tags)}")
+		else:
+			window_classification.append(values[np.argmax(counts)])
+			# print(f"window: {(window)} file: {i} classification: {values[np.argmax(counts)]}")
+
+	return window_classification
+
+def classification(sac_instants, average, deviation, window_size, file_tags):
+
+	"""
+	This function receives 5 parameters with the objective of classifying the data.
+
+	:param instant: List that contains instant, which each position are composed of 3 floating values coming from <function sac_am>
+	:param average: List containing the averages that will be used in the test
+	:param deviation: List containing the standard deviations that will be used in the test
+	:param window_size: Value that corresponds to the interval in which the windowing will be performed
+	:param file_tags: List of the labels for classification
+	
+	:return: Returns the label of the classification data.
+	"""
+	
+	sac_classification = testingInstants(sac_instants, average, deviation, file_tags)
+
+	axes_classification = []
+
+	for i in range(len(sac_classification)):
+		axes_classification.append(instantsClassification(sac_classification[i], file_tags))
+
+	window_classification = windowingClassification(axes_classification, window_size, file_tags)
+
+	values, counts = np.unique(window_classification, return_counts=True)
+
+	#	checks if there is more than one value with the same and greater repetition
+	#	simple voting to classify the data
+	if(np.count_nonzero(counts == counts[np.argmax(counts)]) > 1):
+		# return len(file_tags)
+		return "inconclusivo"
+	else:
+		return file_tags[values[np.argmax(counts)]]
+
+
+
 
 def plotEditingHalfTraining(dataset, title, fig, ax, file_tag):
 	
